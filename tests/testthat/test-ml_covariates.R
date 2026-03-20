@@ -201,7 +201,7 @@ test_that("ml_covariates fails when covariates list is empty", {
 test_that("ml_covariates fails when covariates contains non-ml_covariate objects", {
   expect_error(
     ml_covariates(n_L2 = 3, n_L1 = 10, covariates = list("not_a_covariate")),
-    "ml_covariates"
+    "ml_covariate"
   )
 })
 

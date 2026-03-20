@@ -42,51 +42,12 @@ ml_covariates <- function(
     .var.name = "cluster_name"
   )
 
-  # Validate covariates is a list
-  checkmate::assert_list(
-    covariates,
-    min.len = 1L, 
-    unique = TRUE,
-    any.missing = FALSE,
-    .var.name = "covariates"
-  )
+  # Validate covariates
+  .validate_ml_objects(covariates, "ml_covariate")
 
-  # Validate each element in covariates is an ml_covariate
-  covs_ok <- vapply(
-    covariates, 
-    inherits, 
-    logical(1), 
-    what = "ml_covariate"
-  )
+  # Validate correlations
+  .validate_ml_objects(correlations, "ml_corr_pair")
 
-  if (!all(covs_ok)) {
-    stop(
-      # TODO
-      "All inputs to `ml_covariates()` must be created by `funcname`.", 
-      call. = FALSE
-    )
-  }
-
-  # Validate covariate names are unique
-  cov_names <- vapply(covariates, function(x) x$name, character(1))
-  if (anyDuplicated(cov_names)) {
-    dup <- unique(cov_names[duplicated(cov_names)])
-    stop(
-      sprintf(
-        "Duplicate covariate names found: %s",
-        paste(unique(dup), collapse = ", ")
-      ),
-      call. = FALSE
-    )
-  }
-
-  # Validate correlations is a list
-  checkmate::assert_list(
-    correlations,
-    any.missing = FALSE, 
-    unique = TRUE,
-    .var.name = "correlations"
-  )
 
   structure(
     list(
