@@ -13,6 +13,7 @@ corr_pair <- function(var1, var2, rho_within = NULL, rho_between = NULL) {
     len = 1L,
     finite = TRUE,
     null.ok = TRUE,
+    any.missing = FALSE,
     .var.name = "rho_within"
   )
 
@@ -23,6 +24,7 @@ corr_pair <- function(var1, var2, rho_within = NULL, rho_between = NULL) {
     len = 1L,
     finite = TRUE,
     null.ok = TRUE,
+    any.missing = FALSE,
     .var.name = "rho_between"
   )
 
