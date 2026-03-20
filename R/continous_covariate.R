@@ -5,14 +5,45 @@ continuous_covariate <- function(
   icc = 0
 ) {
 
+  checkmate::assert_character(
+    name,
+    len = 1L,
+    min.chars = 1L,
+    .var.name = "continuous_covariate_name"
+  )
+
+  checkmate::assert_numeric(
+    mean, 
+    len = 1L,
+    .var.name = "continuous_covariate_mean"
+  )
+
+  checkmate::assert_numeric(
+    sd, 
+    len = 1L,
+    lower = 1e-10,
+    finite = TRUE,
+    .var.name = "continuous_covariate_sd"
+  )
+
+  checkmate::assert_numeric(
+    icc, 
+    len = 1L,
+    lower = 0,
+    upper = 1,
+    finite = TRUE,
+    .var.name = "continuous_covariate_icc"
+  )
+
   structure(
     list(
         name = name,
         mean = mean,
         sd = sd,
-        icc = icc
+        icc = icc,
+        type = "continuous"
     ),
-    class = c("ml_continuous_covariate", "ml_covariate")
+    class = c("ml_covariate", "ml_covariate_continous")
   )
 
 }
