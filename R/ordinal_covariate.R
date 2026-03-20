@@ -31,6 +31,7 @@ ordinal_covariate <- function(
     lower = 0,
     upper = 1,
     finite = TRUE,
+    any.missing = FALSE,
     .var.name = "ordinal_covariate_icc"
   )
 
@@ -39,6 +40,7 @@ ordinal_covariate <- function(
     len = length(probs),
     min.chars = 1L,
     null.ok = TRUE,
+    any.missing = FALSE,
     .var.name = "ordinal_covariate_labels"
   )
   if (is.null(labels)) {

@@ -15,6 +15,7 @@ continuous_covariate <- function(
   checkmate::assert_numeric(
     mean, 
     len = 1L,
+    any.missing = FALSE,
     .var.name = "continuous_covariate_mean"
   )
 
@@ -23,6 +24,7 @@ continuous_covariate <- function(
     len = 1L,
     lower = 1e-10,
     finite = TRUE,
+    any.missing = FALSE,
     .var.name = "continuous_covariate_sd"
   )
 
@@ -32,6 +34,7 @@ continuous_covariate <- function(
     lower = 0,
     upper = 1,
     finite = TRUE,
+    any.missing = FALSE,
     .var.name = "continuous_covariate_icc"
   )
 

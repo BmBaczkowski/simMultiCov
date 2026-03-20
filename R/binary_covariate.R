@@ -18,6 +18,7 @@ binary_covariate <- function(
     lower = 1e-5,
     upper = 1 - 1e-5,
     finite = TRUE,
+    any.missing = FALSE,
     .var.name = "binary_covariate_prob"
   )
 
@@ -27,6 +28,7 @@ binary_covariate <- function(
     lower = 0,
     upper = 1,
     finite = TRUE,
+    any.missing = FALSE,
     .var.name = "binary_covariate_icc"
   )
 
@@ -35,6 +37,7 @@ binary_covariate <- function(
     len = 2L,
     min.chars = 1L,
     null.ok = TRUE,
+    any.missing = FALSE,
     .var.name = "binary_covariate_labels"
   )
   if (is.null(labels)) {

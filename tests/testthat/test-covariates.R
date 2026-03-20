@@ -51,6 +51,10 @@ test_that("continuous_covariate fails with invalid mean", {
     continuous_covariate("x", mean = c(1, 2)),
     "continuous_covariate_mean"
   )
+  expect_error(
+    continuous_covariate("x", mean = NA),
+    "continuous_covariate_mean"
+  )
 })
 
 test_that("continuous_covariate fails with invalid sd", {
@@ -66,6 +70,10 @@ test_that("continuous_covariate fails with invalid sd", {
     continuous_covariate("x", sd = c(1, 2)),
     "continuous_covariate_sd"
   )
+  expect_error(
+    continuous_covariate("x", sd = NA),
+    "continuous_covariate_sd"
+  )
 })
 
 test_that("continuous_covariate fails with invalid icc", {
@@ -79,6 +87,10 @@ test_that("continuous_covariate fails with invalid icc", {
   )
   expect_error(
     continuous_covariate("x", icc = c(0.1, 0.2)),
+    "continuous_covariate_icc"
+  )
+  expect_error(
+    continuous_covariate("x", icc = NA),
     "continuous_covariate_icc"
   )
 })
@@ -140,6 +152,14 @@ test_that("binary_covariate fails with invalid prob", {
     binary_covariate(name = "x", prob = c(0.3, 0.4), icc = 0),
     "binary_covariate_prob"
   )
+  expect_error(
+    binary_covariate(name = "x", prob = c(NA, 0.4), icc = 0),
+    "binary_covariate_prob"
+  )
+  expect_error(
+    binary_covariate(name = "x", prob = NA, icc = 0),
+    "binary_covariate_prob"
+  )
 })
 
 test_that("binary_covariate fails with invalid icc", {
@@ -153,6 +173,10 @@ test_that("binary_covariate fails with invalid icc", {
   )
   expect_error(
     binary_covariate(name = "x", prob = 0.5, icc = c(0.1, 0.2)),
+    "binary_covariate_icc"
+  )
+  expect_error(
+    binary_covariate(name = "x", prob = 0.5, icc = NA),
     "binary_covariate_icc"
   )
 })
@@ -229,6 +253,10 @@ test_that("ordinal_covariate fails with invalid probs", {
     ordinal_covariate(name = "x", probs = c(-0.1, 1.1), icc = 0),
     "ordinal_covariate_probs"
   )
+  expect_error(
+    ordinal_covariate(name = "x", probs = c(NA, 0.5, 0.5), icc = 0),
+    "ordinal_covariate_probs"
+  )
 })
 
 test_that("ordinal_covariate fails when probs do not sum to 1", {
@@ -251,6 +279,10 @@ test_that("ordinal_covariate fails with invalid icc", {
     ordinal_covariate(name = "x", probs = c(0.1, 0.4, 0.5), icc = c(0.1, 0.2)),
     "ordinal_covariate_icc"
   )
+  expect_error(
+    ordinal_covariate(name = "x", probs = c(0.1, 0.4, 0.5), icc = NA),
+    "ordinal_covariate_icc"
+  )
 })
 
 test_that("ordinal_covariate fails with invalid labels", {
@@ -268,9 +300,7 @@ test_that("ordinal_covariate fails with invalid labels", {
   )
 })
 
-# ------------------------------------------------------------------------------
-# Edge cases
-# ------------------------------------------------------------------------------
+# --- Edge cases ---
 
 test_that("continuous_covariate handles edge case icc values", {
   result_0 <- continuous_covariate("x", icc = 0)
