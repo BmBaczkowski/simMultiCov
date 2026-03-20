@@ -1,5 +1,11 @@
 .print_field <- function(name, value) {
-  cli::cli_text("{.strong {name}}: {value}")
+  if (is.numeric(value)) {
+    formatted <- sprintf("%.2f", value)
+    cli::cli_text("{.strong {name}}: {.val {formatted}}")
+  } else if (is.character(value)) {
+     cli::cli_text("{.strong {name}}: {value}")
+  }
+
 }
 
 .format_levels <- function(labels, probs) {
@@ -31,6 +37,30 @@ print.ml_covariate <- function(x, ...) {
     .format_levels(x$labels, x$probs)
   } else {
     cli::cli_warn("Unknown covariate type: {x$type}")
+  }
+  
+  invisible(x)
+}
+
+#' @export
+print.ml_corr_pair <- function(x, ...) {
+  cli::cli_h2("<ml_corr_pair>")
+  
+  .print_field("Covariate 1", x$var1)
+  .print_field("Covariate 2", x$var2)
+  
+  cli::cli_h3("Within-cluster correlation")
+  if (is.null(x$rho_within)) {
+    .print_field("rho", 0)
+  } else {
+    .print_field("rho", x$rho_within)
+  }
+
+  cli::cli_h3("Between-cluster correlation")
+  if (is.null(x$rho_between)) {
+    .print_field("rho", 0)
+  } else {
+    .print_field("rho", x$rho_between)
   }
   
   invisible(x)
