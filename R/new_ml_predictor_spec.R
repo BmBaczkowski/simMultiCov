@@ -1,5 +1,7 @@
 #' Prepare a reusable multilevel predictor specification
 #'
+#' @param n_L2 Integer scalar. Number of clusters.
+#' @param n_L1 Integer scalar or integer vector of cluster sizes.
 #' @param sd Numeric vector of predictor standard deviations.
 #' @param icc Numeric vector of predictor intraclass correlations.
 #' @param mu Numeric vector of predictor means, or NULL for zeros.
@@ -12,7 +14,9 @@
 #'
 #' @return An object of class `"ml_predictor_spec"`.
 #' @export
-prepare_multilevel_predictors <- function(
+new_ml_predictor_spec <- function(
+  n_L2,
+  n_L1,
   sd,
   icc,
   mu = NULL,
@@ -23,15 +27,21 @@ prepare_multilevel_predictors <- function(
   predictor_names = NULL,
   cluster_name = "cluster"
 ) {
-  checkmate::assert_numeric(
-    sd,
-    lower = 0,
-    finite = TRUE,
-    any.missing = FALSE,
-    min.len = 1L,
-    .var.name = "sd"
+
+  n_L2 <- checkmate::assert_int(
+    n_L2, lower = 1L, coerce = TRUE, .var.name = "n_L2"
   )
 
+  n_L1 <- .assert_n_L1(n_L1, n_L2, coerce = TRUE)
+
+  checkmate::assert_numeric(
+      sd,
+      lower = 0,
+      finite = TRUE,
+      any.missing = FALSE,
+      min.len = 1L,
+      .var.name = "sd"
+  )
   p <- length(sd)
 
   checkmate::assert_numeric(
@@ -69,19 +79,22 @@ prepare_multilevel_predictors <- function(
     predictor_names <- paste0("x", seq_len(p))
   }
 
-  checkmate::assert_string(cluster_name, min.chars = 1L, .var.name = "cluster_name")
-  if (cluster_name %in% predictor_names) {
-    stop(
-      sprintf(
-        "'cluster_name' (%s) must not match any value in 'predictor_names'.",
-        sQuote(cluster_name)
-      ),
-      call. = FALSE
-    )
-  }
+  checkmate::assert_string(
+		cluster_name, 
+		min.chars = 1L, 
+		.var.name = "cluster_name"
+	)
+
+  .assert_no_cluster_predictor_name_conflict(
+    cluster_name,
+    predictor_names
+  )
 
   if (p == 1L) {
-    if (!is.null(rho_w) || !is.null(rho_mat_w) || !is.null(rho_b) || !is.null(rho_mat_b)) {
+    if (
+      !is.null(rho_w) || !is.null(rho_mat_w) || 
+      !is.null(rho_b) || !is.null(rho_mat_b)
+    ) {
       warning("Correlation arguments ignored because p = 1.", call. = FALSE)
     }
     R_w_cor <- matrix(1, nrow = 1, ncol = 1)
@@ -98,19 +111,26 @@ prepare_multilevel_predictors <- function(
   Sigma_b <- .cov_from_sd_and_cor(sqrt(var_b), R_b_cor)
   Sigma_w <- .cov_from_sd_and_cor(sqrt(var_w), R_w_cor)
 
-  spec <- list(
-    p = p,
-    mu = mu,
-    sd = sd,
-    icc = icc,
-    Sigma_w = Sigma_w,
-    Sigma_b = Sigma_b,
-    predictor_names = predictor_names,
-    cluster_name = cluster_name,
-    .Rw = .cov_factor(Sigma_w, "Sigma_w"),
-    .Rb = .cov_factor(Sigma_b, "Sigma_b")
+  structure(
+    list(
+      n_L1 = n_L1,
+      n_L2 = n_L2,
+      p = p,
+      mu = mu,
+      sd = sd,
+      icc = icc,
+      var_total = var_total,
+      var_w = var_w,
+      var_b = var_b,
+      R_w_cor = R_w_cor,
+      R_b_cor = R_b_cor,
+      Sigma_w = Sigma_w,
+      Sigma_b = Sigma_b,
+      predictor_names = predictor_names,
+      cluster_name = cluster_name,
+      .Rw = .cov_factor(Sigma_w, "Sigma_w"),
+      .Rb = .cov_factor(Sigma_b, "Sigma_b")
+    ),
+    class = "ml_predictor_spec"
   )
-
-  class(spec) <- "ml_predictor_spec"
-  spec
 }

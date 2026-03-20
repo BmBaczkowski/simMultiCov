@@ -1,4 +1,5 @@
-.assert_n_L1 <- function(n_L1, n_L2) {
+#' @keywords internal
+.assert_n_L1 <- function(n_L1, n_L2, coerce = FALSE) {
   if (!length(n_L1) %in% c(1L, n_L2)) {
     stop("'n_L1' must be a scalar or a vector of length 'n_L2'.", call. = FALSE)
   }
@@ -10,13 +11,18 @@
     .var.name = "n_L1"
   )
 
-  if (length(n_L1) == 1L) {
-    rep(as.integer(n_L1), n_L2)
+  if (coerce) {
+    if (length(n_L1) == 1L) {
+      rep(as.integer(n_L1), n_L2)
+    } else {
+      as.integer(n_L1)
+    }
   } else {
-    as.integer(n_L1)
+    invisible(TRUE)
   }
 }
 
+#' @keywords internal
 .assert_rho <- function(rho, p, name) {
   checkmate::assert_number(
     rho,
@@ -28,9 +34,9 @@
 
   if (!is.null(rho) && p > 1L && rho <= -1 / (p - 1)) {
     stop(
-      sprintf(
-        "'%s' = %.6f is too small for p = %d. Compound-symmetry requires %s > %.6f.",
-        name, rho, p, name, -1 / (p - 1)
+      paste0(
+        sprintf("'%s' = %.6f is too small for p = %d. ", name, rho, p),
+        sprintf("Compound-symmetry requires %s > %.6f.", name, -1 / (p - 1))
       ),
       call. = FALSE
     )
@@ -39,6 +45,7 @@
   invisible(TRUE)
 }
 
+#' @keywords internal
 .assert_correlation_matrix <- function(x, p, name, tol = 1e-8) {
   checkmate::assert_matrix(
     x,
@@ -65,10 +72,31 @@
     stop(sprintf("'%s' entries must lie in [-1, 1].", name), call. = FALSE)
   }
 
-  eig_min <- min(eigen((x + t(x)) * 0.5, symmetric = TRUE, only.values = TRUE)$values)
+  eig_min <- min(
+    eigen((x + t(x)) * 0.5, symmetric = TRUE, only.values = TRUE)$values
+  )
+
   if (eig_min < -tol) {
     stop(sprintf("'%s' must be positive semidefinite.", name), call. = FALSE)
   }
 
   invisible(TRUE)
+}
+
+#' @keywords internal
+.assert_no_cluster_predictor_name_conflict <- function(
+  cluster_name, 
+  predictor_names
+) {
+  if (cluster_name %in% predictor_names) {
+    stop(
+      sprintf(
+        "'cluster_name' (%s) must not match any value in 'predictor_names'.",
+        sQuote(cluster_name)
+      ),
+      call. = FALSE
+    )
+  }
+
+	invisible(TRUE)
 }
