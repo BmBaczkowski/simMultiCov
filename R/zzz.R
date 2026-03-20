@@ -23,8 +23,9 @@ print.ml_covariate <- function(x, ...) {
     .print_field("ICC", x$icc)
 
   } else if (x$type == "binary") {
+    p <- c(x$prob, 1 - x$prob)
     cli::cli_h3("Levels")
-    .format_levels(x$labels, x$probs)
+    .format_levels(x$labels, p)
   } else if (x$type == "ordinal") {
     cli::cli_h3("Levels (ordered)")
     .format_levels(x$labels, x$probs)
