@@ -47,7 +47,7 @@ ml_covariates <- function(
     covariates,
     min.len = 1L, 
     unique = TRUE,
-    any.missing = FALSE
+    any.missing = FALSE,
     .var.name = "covariates"
   )
 
