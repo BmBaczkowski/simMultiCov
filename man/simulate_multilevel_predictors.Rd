@@ -22,7 +22,7 @@ simulate_multilevel_predictors(
 \arguments{
 \item{n_L2}{Integer scalar. Number of clusters.}
 
-\item{n_L1}{Integer scalar or integer vector of length \code{n_L2}.}
+\item{n_L1}{Integer scalar or integer vector of cluster sizes.}
 
 \item{sd}{Numeric vector of predictor standard deviations.}
 

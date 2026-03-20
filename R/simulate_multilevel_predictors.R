@@ -1,8 +1,6 @@
 #' Generate multilevel continuous predictors
 #'
-#' @inheritParams prepare_multilevel_predictors
-#' @param n_L2 Integer scalar. Number of clusters.
-#' @param n_L1 Integer scalar or integer vector of length `n_L2`.
+#' @inheritParams new_ml_predictor_spec
 #' @param seed Optional integer seed.
 #'
 #' @return A `data.frame` with one row per level-1 observation.
@@ -21,7 +19,7 @@ simulate_multilevel_predictors <- function(
   cluster_name = "cluster",
   seed = NULL
 ) {
-  spec <- prepare_multilevel_predictors(
+  spec <- new_ml_predictor_spec(
     sd = sd,
     icc = icc,
     mu = mu,
