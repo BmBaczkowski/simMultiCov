@@ -3,8 +3,8 @@ create_test_covariates <- function() {
   list(
     continuous_covariate("x1", icc = 0.3),
     continuous_covariate("x2", icc = 0.4),
-    binary_covariate("treatment", prob = 0.5, icc = 0),
-    ordinal_covariate("education", probs = c(0.3, 0.4, 0.3), icc = 0.1)
+    binary_covariate("x3", prob = 0.5, icc = 0),
+    ordinal_covariate("x4", probs = c(0.3, 0.4, 0.3), icc = 0.1)
   )
 }
 
@@ -344,15 +344,39 @@ test_that("ml_covariates fails with correlations included unknown variable", {
       covariates = covs,
       correlations = list(
         corr_pair("x1", "x2", rho_within = 0.2),
-        corr_pair("x2", "x3", rho_between = 0.2)
+        corr_pair("x2", "x99", rho_between = 0.2)
       )
     ),
     "Invalid covariate"
   )
 })
 
-test_that("ml_covariates warns with non PSD correlations", {
+test_that("ml_covariates warns when correlations include binary or ordinal", {
   covs <- create_test_covariates()
+  corrs <- list(
+    corr_pair("x1", "x2", rho_within = 0.2, rho_between = 0.4),
+    corr_pair("x1", "x3", rho_within = 0.7, rho_between = -0.4)
+  )
+
+  expect_warning(
+    result <- ml_covariates(
+      n_L2 = 5,
+      n_L1 = 10,
+      cluster_name = "school",
+      covariates = covs,
+      correlations = corrs
+    ),
+    "latent space"
+  )
+  
+})
+
+test_that("ml_covariates warns with non PSD correlations", {
+  covs <-  list(
+    continuous_covariate("x1", icc = 0.3),
+    continuous_covariate("x2", icc = 0.4),
+    continuous_covariate("x3", icc = 0)
+  )
   
   expect_warning(
     ml_covariates(
@@ -361,8 +385,8 @@ test_that("ml_covariates warns with non PSD correlations", {
       covariates = covs,
       correlations = list(
         corr_pair("x1", "x2", rho_between = .9, rho_within = 0),
-        corr_pair("x1", "education", rho_between = .9),
-        corr_pair("x2", "education", rho_between = -.9, rho_within = 0)
+        corr_pair("x1", "x3", rho_between = .9),
+        corr_pair("x2", "x3", rho_between = -.9, rho_within = 0)
       )
     ),
     "Replacing with nearest positive-definite matrix"

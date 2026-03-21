@@ -16,10 +16,6 @@ ml_covariates <- function(
   )
 
   # Validate n_L1
-  if (!length(n_L1) %in% c(1L, n_L2)) {
-    stop("'n_L1' must be a scalar or a vector of length 'n_L2'.", call. = FALSE)
-  }
-
   checkmate::assert_integerish(
     n_L1,
     lower = 1L,
@@ -27,10 +23,15 @@ ml_covariates <- function(
     .var.name = "n_L1"
   )
 
+
+
   # Coerce n_L1 to vector of length n_L2
   n_L1 <- if (length(n_L1) == 1L) {
     rep(as.integer(n_L1), n_L2)
   } else {
+    if (!length(n_L1) == n_L2) {
+      stop("'n_L1' must be a scalar or a vector of length 'n_L2'.", call. = FALSE)
+    }
     as.integer(n_L1)
   }
 
@@ -42,13 +43,8 @@ ml_covariates <- function(
     .var.name = "cluster_name"
   )
 
-  # Validate covariates (returns unique covariate names)
-  covariate_names <- .validate_covariates(covariates)
-
-  # Validate correlations
-  corr_names <- .validate_correlations(correlations, covariate_names)
-
-  # Build correlation matrix
+  covariates <- .validate_covariates(covariates)
+  correlations <- .validate_correlations(correlations, covariates)
   R_mat <- .build_R_mat(correlations, covariates)
 
   structure(
