@@ -7,7 +7,7 @@ specific requirements. This function performs two key validations:
 (1) each element must inherit from "ml_corr_pair" class, and (2) all
 correlation pairs must be unique (order-independent).}
 \usage{
-.validate_correlations(correlations)
+.validate_correlations(correlations, covariate_names)
 }
 \arguments{
 \item{correlations}{A list of correlation pair objects to validate. Each

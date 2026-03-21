@@ -9,7 +9,7 @@ create_test_covariates <- function() {
 }
 
 create_test_correlations <- function() {
-    list(corr_pair("x1", "x2", rho_within = 0.2))
+    list(corr_pair("x1", "x2", rho_within = 0.2, rho_between = 0.4))
 }
 
 # --- Tests for valid inputs ---
@@ -75,13 +75,25 @@ test_that("ml_covariates handles single cluster", {
 
 # --- Tests for n_L2 validation ---
 
-test_that("ml_covariates fails when n_L2 is not an integer", {
+test_that("ml_covariates fails when n_L2 is numeric with a fractional part", {
   covs <- list(continuous_covariate("x"))
 
   expect_error(
     ml_covariates(n_L2 = 5.5, n_L1 = 10, covariates = covs),
     "n_L2"
   )
+})
+
+test_that("ml_covariates accepts numeric n_L2 with no fractional part", {
+  covs <- list(continuous_covariate("x"))
+
+  result <- ml_covariates(
+    n_L2 = 5.0,
+    n_L1 = 10,
+    covariates = covs
+  )
+
+  expect_s3_class(result, "ml_covariates")
 })
 
 test_that("ml_covariates fails when n_L2 is less than 1", {
@@ -144,13 +156,27 @@ test_that("ml_covariates fails when n_L1 is less than 1", {
   )
 })
 
-test_that("ml_covariates fails when n_L1 is not numeric", {
+test_that("ml_covariates fails when n_L1 is not integer", {
   covs <- list(continuous_covariate("x"))
 
   expect_error(
     ml_covariates(n_L2 = 3, n_L1 = c("10", "20", "30"), covariates = covs),
     "n_L1"
   )
+})
+
+test_that("ml_covariates fails when n_L1 is numeric", {
+  covs <- create_test_covariates()
+
+  expect_error(
+    result <- ml_covariates(
+      n_L2 = 3,
+      n_L1 = 10.5,
+      covariates = covs
+    ),
+    "n_L1"
+  )
+
 })
 
 # --- Tests for cluster_name validation ---
@@ -237,47 +263,94 @@ test_that("ml_covariates fails when covariates contains missing values", {
 
 # --- Tests for correlations validation ---
 
-# test_that("ml_covariates fails when correlations is not a list", {
-#   covs <- create_test_covariates()
+test_that("ml_covariates fails when correlations is not a list", {
+  covs <- create_test_covariates()
 
-#   expect_error(
-#     ml_covariates(
-#       n_L2 = 3, 
-#       n_L1 = 10, 
-#       covariates = covs, 
-#       correlations = corr_pair("age", "gender", rho_within = 0.2)
-#     ),
-#     "correlations"
-#   )
-# })
+  expect_error(
+    ml_covariates(
+      n_L2 = 3, 
+      n_L1 = 10, 
+      covariates = covs, 
+      correlations = corr_pair("age", "gender", rho_within = 0.2)
+    ),
+    "correlations"
+  )
+})
 
-# test_that("ml_covariates fails when correlations contains missing values", {
-#   covs <- create_test_covariates()
-#   corrs <- list(corr_pair("age", "gender", rho_within = 0.2), NULL)
+test_that("ml_covariates fails when correlations contains missing values", {
+  covs <- create_test_covariates()
+  corrs <- list(corr_pair("age", "gender", rho_within = 0.2), NULL)
 
-#   expect_error(
-#     ml_covariates(
-#       n_L2 = 3,
-#       n_L1 = 10,
-#       covariates = covs,
-#       correlations = corrs
-#     ),
-#     "correlations"
-#   )
-# })
+  expect_error(
+    ml_covariates(
+      n_L2 = 3,
+      n_L1 = 10,
+      covariates = covs,
+      correlations = corrs
+    ),
+    "correlations"
+  )
+})
 
 # # --- Edge cases ---
 
-# test_that("ml_covariates works with single covariate", {
-#   covs <- list(continuous_covariate("x"))
-#   result <- ml_covariates(
-#     n_L2 = 5,
-#     n_L1 = 10,
-#     covariates = covs
-#   )
+test_that("ml_covariates works with single covariate", {
+  covs <- list(continuous_covariate("x"))
+  result <- ml_covariates(
+    n_L2 = 5,
+    n_L1 = 10,
+    covariates = covs
+  )
 
-#   expect_s3_class(result, "ml_covariates")
-# })
+  expect_s3_class(result, "ml_covariates")
+})
+
+test_that("ml_covariates works with empty correlations list", {
+  covs <- create_test_covariates()
+  result <- ml_covariates(
+    n_L2 = 5,
+    n_L1 = 10,
+    covariates = covs,
+    correlations = list()
+  )
+
+  expect_s3_class(result, "ml_covariates")
+})
+
+test_that("ml_covariates fails with a list of duplicated correlations", {
+  covs <- create_test_covariates()
+  
+  expect_error(
+    ml_covariates(
+      n_L2 = 5,
+      n_L1 = 10,
+      covariates = covs,
+      correlations = list(
+        corr_pair("x1", "x2", rho_within = 0.2),
+        corr_pair("x2", "x1", rho_between = 0.2)
+      )
+    ),
+    "correlations"
+  )
+})
+
+test_that("ml_covariates fails with correlations included unknown variable", {
+  covs <- create_test_covariates()
+  
+  expect_error(
+    ml_covariates(
+      n_L2 = 5,
+      n_L1 = 10,
+      covariates = covs,
+      correlations = list(
+        corr_pair("x1", "x2", rho_within = 0.2),
+        corr_pair("x2", "x3", rho_between = 0.2)
+      )
+    ),
+    "Invalid covariate"
+  )
+})
+
 
 # test_that("ml_covariates works with many covariates", {
 #   covs <- list(
@@ -296,38 +369,3 @@ test_that("ml_covariates fails when covariates contains missing values", {
 #   expect_s3_class(result, "ml_covariates")
 # })
 
-# test_that("ml_covariates works with empty correlations list", {
-#   covs <- create_test_covariates()
-#   result <- ml_covariates(
-#     n_L2 = 5,
-#     n_L1 = 10,
-#     covariates = covs,
-#     correlations = list()
-#   )
-
-#   expect_s3_class(result, "ml_covariates")
-# })
-
-# test_that("ml_covariates coerces n_L1 from numeric to integer", {
-#   covs <- list(continuous_covariate("x"))
-#   # Should work with numeric input that gets coerced to integer
-#   result <- ml_covariates(
-#     n_L2 = 3,
-#     n_L1 = 10.5,  # numeric, not integer
-#     covariates = covs
-#   )
-
-#   expect_s3_class(result, "ml_covariates")
-# })
-
-# test_that("ml_covariates coerces n_L2 from numeric to integer", {
-#   covs <- list(continuous_covariate("x"))
-#   # Should work with numeric input that gets coerced to integer
-#   result <- ml_covariates(
-#     n_L2 = 5.0,  # numeric, not integer
-#     n_L1 = 10,
-#     covariates = covs
-#   )
-
-#   expect_s3_class(result, "ml_covariates")
-# })

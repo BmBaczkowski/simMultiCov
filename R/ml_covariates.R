@@ -46,7 +46,7 @@ ml_covariates <- function(
   covariate_names <- .validate_covariates(covariates)
 
   # Validate correlations
-  .validate_correlations(correlations)
+  .validate_correlations(correlations, covariate_names)
 
 
   structure(

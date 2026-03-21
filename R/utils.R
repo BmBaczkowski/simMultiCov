@@ -106,7 +106,7 @@
   }
 
   # Validate inputs are unique
-  keys <- vapply(covariates, function(xx) xx[['name']], character(1))
+  keys <- vapply(covariates, function(x) x[['name']], character(1))
 
   if (anyDuplicated(keys)) {
     dup <- unique(keys[duplicated(keys)])
@@ -155,7 +155,7 @@
 #' # Error: Duplicate correlation pair specification(s): x1||x2
 #'
 #' @keywords internal
-.validate_correlations <- function(correlations) {
+.validate_correlations <- function(correlations, covariate_names) {
   # Validate it is a list (correlations can be empty)
   checkmate::assert_list(
     correlations,
@@ -164,6 +164,10 @@
     any.missing = FALSE,
     .var.name = "correlations"
   )
+
+  if (length(correlations) == 0L) {
+    return(invisible(TRUE))
+  }
 
   # Validate each element is an accurate class
   ok <- vapply(
@@ -186,7 +190,7 @@
   # Validate inputs are unique (order-independent)
   keys <- vapply(
     correlations,
-    function(xx) paste(sort(c(xx[['var1']], xx[['var2']])), collapse = "||"),
+    function(x) paste(sort(c(x[['var1']], x[['var2']])), collapse = "||"),
     character(1)
   )
 
@@ -194,9 +198,29 @@
     dup <- unique(keys[duplicated(keys)])
     stop(
       sprintf(
-        "Duplicate correlation pair specification(s): %s",
+        "Duplicate correlation pair specification(s): %s.
+        To define both within and between correlations
+        for the same variable pair, use single call:
+        'corr_pair(var1, var2, rho_within = 0.2, rho_between = 0.4)'",
         paste(gsub("\\|\\|", " - ", dup), collapse = ", ")
       ),
+      call. = FALSE
+    )
+  }
+
+  # Validate variables
+  var_names <- unique(
+    vapply(
+      correlations,
+      function(x) sort(c(x[['var1']], x[['var2']])),
+      character(2)
+    )
+  )
+
+  if (!all(var_names %in% covariate_names)) {
+    stop(
+      "Invalid covariate(s) in correlations: ",
+      paste(setdiff(var_names, covariate_names), collapse = ", "),
       call. = FALSE
     )
   }
