@@ -41,99 +41,165 @@
   x
 }
 
-#' Internal validation function that ensures a list of covariates and
-#' correlations meet specific requirements. This function performs two
-#' key validations: (1) each element must inherit from a specified class, and
-#' (2) all objects must have unique names.
+#' Internal validation function that ensures a list of covariates meets
+#' specific requirements. This function performs two key validations:
+#' (1) each element must inherit from "ml_covariate" class, and (2) all
+#' covariates must have unique names.
 #'
-#' @param x A list of objects to validate. Each element should be an instance
-#'   of the specified class.
+#' @param covariates A list of covariate objects to validate. Each element
+#'   should be an instance of "ml_covariate".
 #'
-#' @param obj_class A character string specifying the expected class name.
-#'   All elements in x must inherit from this class.
-#'
-#'
-#' @return Invisibly returns TRUE if all validations pass.
+#' @return A character vector of unique covariate names.
 #'
 #' @examples
 #' # Example 1: Valid input
-#' objects <- list(
-#'   obj1 = structure(list(name = "x1"), class = "covariate"),
-#'   obj2 = structure(list(name = "x2"), class = "covariate")
+#' covariates <- list(
+#'   obj1 = structure(list(name = "x1"), class = "ml_covariate"),
+#'   obj2 = structure(list(name = "x2"), class = "ml_covariate")
 #' )
-#' .validate_ml_objects(objects, "covariate")
-#' # Returns TRUE invisibly
+#' .validate_covariates(covariates)
+#' # Returns: c("x1", "x2")
 #'
 #' # Example 2: Invalid class
-#' objects <- list(
-#'   obj1 = structure(list(name = "x1"), class = "covariate"),
+#' covariates <- list(
+#'   obj1 = structure(list(name = "x1"), class = "ml_covariate"),
 #'   obj2 = structure(list(name = "x2"), class = "value")
 #' )
-#' .validate_ml_objects(objects, "covariate")
-#' # Error: All inputs must be of single class.
+#' .validate_covariates(covariates)
+#' # Error: All inputs must be of class "ml_covariate".
 #'
 #' # Example 3: Duplicate names
-#' objects <- list(
-#'   obj1 = structure(list(name = "x1"), class = "covariate"),
-#'   obj2 = structure(list(name = "x1"), class = "covariate")
+#' covariates <- list(
+#'   obj1 = structure(list(name = "x1"), class = "ml_covariate"),
+#'   obj2 = structure(list(name = "x1"), class = "ml_covariate")
 #' )
-#' .validate_ml_objects(objects, "covariate")
+#' .validate_covariates(covariates)
 #' # Error: Duplicate covariate names found: x1
 #'
 #' @keywords internal
-.validate_ml_objects <- function(x, obj_class) {
-  x_name <- deparse(substitute(x))
-  min.len <- 1L
-  if (identical(x_name, "correlations")) {
-    min.len <- 0L
-  }
+.validate_covariates <- function(covariates) {
   # Validate it is a list
   checkmate::assert_list(
-    x,
-    min.len = min.len, 
+    covariates,
+    min.len = 1L,
     unique = TRUE,
     any.missing = FALSE,
-    .var.name = x_name
+    .var.name = "covariates"
   )
 
   # Validate each element is an accurate class
   ok <- vapply(
-    x, 
-    inherits, 
-    logical(1), 
-    what = obj_class
+    covariates,
+    inherits,
+    logical(1),
+    what = "ml_covariate"
   )
 
   if (!all(ok)) {
     stop(
       sprintf(
-        "All inputs to `%s` must be of class `%s`.", 
-        x_name, obj_class
+        "All inputs to `covariates` must be of class `%s`.",
+        "ml_covariate"
       ),
       call. = FALSE
     )
   }
 
   # Validate inputs are unique
-  if (identical(x_name, "covariates")) {
-    keys <- vapply(x, function(xx) xx[['name']], character(1))
-    str_info <- "Duplicate covariate names found: %s"
-  } else if (identical(x_name, "correlations")) {
-    keys <- vapply(
-      x,
-      function(xx) paste(sort(c(xx[['var1']], xx[['var2']])), collapse = "||"),
-      character(1)
-    )
-    str_info <- "Duplicate correlation pair specification(s): %s"
-  }
+  keys <- vapply(covariates, function(xx) xx[['name']], character(1))
 
   if (anyDuplicated(keys)) {
     dup <- unique(keys[duplicated(keys)])
     stop(
-      sprintf(str_info, paste(dup, collapse = ", ")),
+      sprintf("Duplicate covariate names found: %s", paste(dup, collapse = ", ")),
       call. = FALSE
     )
   }
-  
+
+  keys
+}
+
+#' Internal validation function that ensures a list of correlations meets
+#' specific requirements. This function performs two key validations:
+#' (1) each element must inherit from "ml_corr_pair" class, and (2) all
+#' correlation pairs must be unique (order-independent).
+#'
+#' @param correlations A list of correlation pair objects to validate. Each
+#'   element should be an instance of "ml_corr_pair".
+#'
+#' @return Invisibly returns TRUE if all validations pass.
+#'
+#' @examples
+#' # Example 1: Valid input
+#' correlations <- list(
+#'   obj1 = structure(list(var1 = "x1", var2 = "x2"), class = "ml_corr_pair"),
+#'   obj2 = structure(list(var1 = "x1", var2 = "x3"), class = "ml_corr_pair")
+#' )
+#' .validate_correlations(correlations)
+#' # Returns TRUE invisibly
+#'
+#' # Example 2: Invalid class
+#' correlations <- list(
+#'   obj1 = structure(list(var1 = "x1", var2 = "x2"), class = "ml_corr_pair"),
+#'   obj2 = structure(list(var1 = "x1", var2 = "x2"), class = "value")
+#' )
+#' .validate_correlations(correlations)
+#' # Error: All inputs must be of class "ml_corr_pair".
+#'
+#' # Example 3: Duplicate pairs
+#' correlations <- list(
+#'   obj1 = structure(list(var1 = "x1", var2 = "x2"), class = "ml_corr_pair"),
+#'   obj2 = structure(list(var1 = "x2", var2 = "x1"), class = "ml_corr_pair")
+#' )
+#' .validate_correlations(correlations)
+#' # Error: Duplicate correlation pair specification(s): x1||x2
+#'
+#' @keywords internal
+.validate_correlations <- function(correlations) {
+  # Validate it is a list (correlations can be empty)
+  checkmate::assert_list(
+    correlations,
+    min.len = 0L,
+    unique = TRUE,
+    any.missing = FALSE,
+    .var.name = "correlations"
+  )
+
+  # Validate each element is an accurate class
+  ok <- vapply(
+    correlations,
+    inherits,
+    logical(1),
+    what = "ml_corr_pair"
+  )
+
+  if (!all(ok)) {
+    stop(
+      sprintf(
+        "All inputs to `correlations` must be of class `%s`.",
+        "ml_corr_pair"
+      ),
+      call. = FALSE
+    )
+  }
+
+  # Validate inputs are unique (order-independent)
+  keys <- vapply(
+    correlations,
+    function(xx) paste(sort(c(xx[['var1']], xx[['var2']])), collapse = "||"),
+    character(1)
+  )
+
+  if (anyDuplicated(keys)) {
+    dup <- unique(keys[duplicated(keys)])
+    stop(
+      sprintf(
+        "Duplicate correlation pair specification(s): %s",
+        paste(gsub("\\|\\|", " - ", dup), collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+
   invisible(TRUE)
 }

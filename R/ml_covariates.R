@@ -42,11 +42,11 @@ ml_covariates <- function(
     .var.name = "cluster_name"
   )
 
-  # Validate covariates
-  .validate_ml_objects(covariates, "ml_covariate")
+  # Validate covariates (returns unique covariate names)
+  covariate_names <- .validate_covariates(covariates)
 
   # Validate correlations
-  .validate_ml_objects(correlations, "ml_corr_pair")
+  .validate_correlations(correlations)
 
 
   structure(
