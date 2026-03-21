@@ -35,12 +35,16 @@ corr_pair <- function(var1, var2, rho_within = NULL, rho_between = NULL) {
     )
   }
 
+  .null_to_zero <- function(x) {
+    if (is.null(x)) 0 else x
+  }
+
   structure(
     list(
       var1 = var1,
       var2 = var2,
-      rho_within = rho_within,
-      rho_between = rho_between
+      rho_within = .null_to_zero(rho_within),
+      rho_between = .null_to_zero(rho_between)
     ),
     class = c("ml_corr_pair", "ml_spec")
   )

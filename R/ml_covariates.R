@@ -49,12 +49,11 @@ ml_covariates <- function(
   corr_names <- .validate_correlations(correlations, covariate_names)
 
   # Build correlation matrix
-  if (!is.null(corr_names)){
-    print("xxxxxxx")
-  }
+  R_mat <- .build_R_mat(correlations, covariates)
 
   structure(
     list(
+      R_mat = R_mat
     ),
     class = "ml_covariates"
   )

@@ -351,21 +351,22 @@ test_that("ml_covariates fails with correlations included unknown variable", {
   )
 })
 
+test_that("ml_covariates warns with non PSD correlations", {
+  covs <- create_test_covariates()
+  
+  expect_warning(
+    ml_covariates(
+      n_L2 = 5,
+      n_L1 = 10,
+      covariates = covs,
+      correlations = list(
+        corr_pair("x1", "x2", rho_between = .9, rho_within = 0),
+        corr_pair("x1", "education", rho_between = .9),
+        corr_pair("x2", "education", rho_between = -.9, rho_within = 0)
+      )
+    ),
+    "Replacing with nearest positive-definite matrix"
+  )
+})
 
-# test_that("ml_covariates works with many covariates", {
-#   covs <- list(
-#     continuous_covariate("var1"),
-#     continuous_covariate("var2"),
-#     continuous_covariate("var3"),
-#     binary_covariate("var4"),
-#     ordinal_covariate("var5", probs = c(0.3, 0.3, 0.4))
-#   )
-#   result <- ml_covariates(
-#     n_L2 = 5,
-#     n_L1 = 10,
-#     covariates = covs
-#   )
-
-#   expect_s3_class(result, "ml_covariates")
-# })
 
