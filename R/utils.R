@@ -179,35 +179,46 @@
     }
 
     M <- as.matrix(res$mat)
+  }
 
+  if (check_singularity) {
     ev <- eigen(M, symmetric = TRUE, only.values = TRUE)$values
     min_ev <- min(ev)
+
+    if (min_ev <= tol) {
+      warning(
+        sprintf(
+          "%s is singular or nearly singular (min eigenvalue = %.3e).", 
+          name, min_ev
+        ),
+        call. = FALSE
+      )
+    }
   }
 
-  if (check_singularity && min_ev <= tol) {
-    warning(
-      sprintf(
-        "%s is singular or nearly singular (min eigenvalue = %.3e).", 
-        name, min_ev
-      ),
-      call. = FALSE
-    )
-  }
-
-  M
+  list(R = M, L = t(chol(M)))
 }
 
 .build_R_mat <- function(correlations, covariates) {
   
   cov_names <- names(covariates)
   p <- length(cov_names)
-  R_w <- diag(p)
-  R_b <- diag(p)
+  R_w <- L_w <- diag(p)
+  R_b <- L_b <- diag(p)
   dimnames(R_w) <- list(cov_names, cov_names)
   dimnames(R_b) <- list(cov_names, cov_names)
-  
+
   if (is.null(correlations)) {
-    return(list(R_b = R_b, R_w = R_w))
+    return(list(
+      corr_w = list(
+        R = R_w,
+        L = L_w
+      ),
+      corr_b = list(
+        R = R_b,
+        L = L_b
+      )
+    ))
   }
 
   var1 <- vapply(correlations, `[[`, character(1), "var1")
@@ -224,9 +235,6 @@
   R_b[idx12] <- rho_b
   R_b[idx21] <- rho_b
 
-  R_w <- .check_and_fix_mat(R_w, "Within-correlation matrix")
-  R_b <- .check_and_fix_mat(R_b, "Between-correlation matrix")
-
   types <- vapply(cov_names, function(x) covariates[[x]][["type"]], character(1))
   var_names <- unique(c(var1, var2))
 
@@ -239,7 +247,8 @@
   }
 
   list(
-    R_b = R_b,
-    R_w = R_w
+    corr_w = .check_and_fix_mat(R_w, "Within-correlation matrix"),
+    corr_b = .check_and_fix_mat(R_b, "Between-correlation matrix")
   )
+
 }
