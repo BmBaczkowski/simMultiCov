@@ -12,9 +12,14 @@ correlation pairs must be unique (order-independent).}
 \arguments{
 \item{correlations}{A list of correlation pair objects to validate. Each
 element should be an instance of "ml_corr_pair".}
+
+\item{covariate_names}{Character vector of valid covariate names to validate
+that all correlation variables exist.}
 }
 \value{
-Invisibly returns TRUE if all validations pass.
+A character vector of unique covariate names for which
+covariate names are specified. Defaults to NULL when the correlation
+list is empty.
 }
 \description{
 Internal validation function that ensures a list of correlations meets
@@ -23,15 +28,20 @@ specific requirements. This function performs two key validations:
 correlation pairs must be unique (order-independent).
 }
 \examples{
-# Example 1: Valid input
+# Example 1: Valid input (empty list)
+correlations <- list()
+.validate_correlations(correlations)
+# Returns: NULL
+
+# Example 2: Valid input
 correlations <- list(
   obj1 = structure(list(var1 = "x1", var2 = "x2"), class = "ml_corr_pair"),
   obj2 = structure(list(var1 = "x1", var2 = "x3"), class = "ml_corr_pair")
 )
 .validate_correlations(correlations)
-# Returns TRUE invisibly
+# Returns: c("x1", "x2", "x3")
 
-# Example 2: Invalid class
+# Example 3: Invalid class
 correlations <- list(
   obj1 = structure(list(var1 = "x1", var2 = "x2"), class = "ml_corr_pair"),
   obj2 = structure(list(var1 = "x1", var2 = "x2"), class = "value")
@@ -39,7 +49,7 @@ correlations <- list(
 .validate_correlations(correlations)
 # Error: All inputs must be of class "ml_corr_pair".
 
-# Example 3: Duplicate pairs
+# Example 4: Duplicate pairs
 correlations <- list(
   obj1 = structure(list(var1 = "x1", var2 = "x2"), class = "ml_corr_pair"),
   obj2 = structure(list(var1 = "x2", var2 = "x1"), class = "ml_corr_pair")
