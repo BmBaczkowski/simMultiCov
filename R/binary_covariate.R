@@ -48,6 +48,8 @@ binary_covariate <- function(
     list(
       name = name,
       prob = prob,
+      mean = 0,
+      sd = 1,
       icc = icc, 
       labels = labels,
       type = "binary"

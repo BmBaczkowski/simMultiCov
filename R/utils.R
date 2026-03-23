@@ -252,3 +252,26 @@
   )
 
 }
+
+.build_D_mat <- function(covariates) {
+  covs_names <- names(covariates)
+  sds <- vapply(covariates, `[[`, numeric(1), "sd")
+  iccs <- vapply(covariates, `[[`, numeric(1), "icc")
+
+  var_total <- sds^2
+  var_b <- iccs * var_total
+  var_w <- (1 - iccs) * var_total
+
+  D_b <- diag(length(var_b))
+  D_w <- diag(length(var_w))
+  
+  diag(D_b) <- sqrt(var_b)
+  diag(D_w) <- sqrt(var_w)
+
+  dimnames(D_b) <- dimnames(D_w) <- list(covs_names, covs_names)
+
+  list(
+    std_diag_w = D_w,
+    std_diag_b = D_b
+  )
+}

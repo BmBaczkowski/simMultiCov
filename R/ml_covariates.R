@@ -47,9 +47,16 @@ ml_covariates <- function(
   correlations <- .validate_correlations(correlations, covariates)
   R_mat <- .build_R_mat(correlations, covariates)
 
+  D <- .build_D_mat(covariates)
+
   structure(
-    list(
-      R_mat = R_mat
+    c(list(
+      n_L2 = n_L2,
+      n_L1 = n_L1,
+      parameters = covariates
+    ),
+    D,
+    R_mat
     ),
     class = "ml_covariates"
   )

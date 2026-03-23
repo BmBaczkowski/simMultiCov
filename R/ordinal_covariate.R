@@ -52,6 +52,8 @@ ordinal_covariate <- function(
       name = name,
       probs = probs,
       icc = icc, 
+      mean = 0,
+      sd = 1,
       labels = labels,
       type = "ordinal"
     ),

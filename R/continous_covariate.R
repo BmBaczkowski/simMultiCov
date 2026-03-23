@@ -40,11 +40,11 @@ continuous_covariate <- function(
 
   structure(
     list(
-        name = name,
-        mean = mean,
-        sd = sd,
-        icc = icc,
-        type = "continuous"
+      name = name,
+      mean = mean,
+      sd = sd,
+      icc = icc,
+      type = "continuous"
     ),
     class = c("ml_covariate", "ml_covariate_continous")
   )
