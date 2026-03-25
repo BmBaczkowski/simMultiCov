@@ -9,6 +9,7 @@ make_binary <- function(
     name,
     len = 1L,
     min.chars = 1L,
+    pattern = "^[^ ]+$",
     .var.name = "make_binary_name"
   )
 
@@ -38,6 +39,7 @@ make_binary <- function(
     min.chars = 1L,
     null.ok = TRUE,
     any.missing = FALSE,
+    pattern = "^[^ ]+$",
     .var.name = "make_binary_labels"
   )
   if (is.null(labels)) {
@@ -47,11 +49,11 @@ make_binary <- function(
   structure(
     list(
       name = name,
-      prob = list(c(prob, 1 - prob)),
+      probs = c(prob, 1 - prob),
       mean = 0,
-      sd = 1,
+      total_var = 1,
       icc = icc, 
-      labels = list(labels),
+      labels = labels,
       type = "binary"
     ),
     class = c("multilevel_covariate", "multilevel_binary")
