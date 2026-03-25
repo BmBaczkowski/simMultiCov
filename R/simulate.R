@@ -47,5 +47,10 @@ simulate.covariates <- function(x, seed = NULL, ...) {
   df
 
   # add attributes for data generating process
+  attributes(df) <- list(
+    mean = unlist(x$specs$mean),
+    Sigma_w = x$specs$Sigma_w, 
+    Sigma_b = x$specs$Sigma_b, 
+  )
 }
 
