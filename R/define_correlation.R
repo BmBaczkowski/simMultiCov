@@ -1,4 +1,4 @@
-define_correlation <- function(var1, var2, rho_within = NULL, rho_between = NULL) {
+define_correlation <- function(var1, var2, corr_within = NULL, corr_between = NULL) {
   checkmate::assert_string(var1, min.chars = 1L, .var.name = "var1")
   checkmate::assert_string(var2, min.chars = 1L, .var.name = "var2")
 
@@ -7,30 +7,30 @@ define_correlation <- function(var1, var2, rho_within = NULL, rho_between = NULL
   }
 
   checkmate::assert_numeric(
-    rho_within,
+    corr_within,
     lower = -1,
     upper = 1,
     len = 1L,
     finite = TRUE,
     null.ok = TRUE,
     any.missing = FALSE,
-    .var.name = "rho_within"
+    .var.name = "corr_within"
   )
 
   checkmate::assert_numeric(
-    rho_between,
+    corr_between,
     lower = -1,
     upper = 1,
     len = 1L,
     finite = TRUE,
     null.ok = TRUE,
     any.missing = FALSE,
-    .var.name = "rho_between"
+    .var.name = "corr_between"
   )
 
-  if (is.null(rho_within) && is.null(rho_between)) {
+  if (is.null(corr_within) && is.null(corr_between)) {
     stop(
-      "At least one of `rho_within` or `rho_between` must be supplied.", 
+      "At least one of `corr_within` or `corr_between` must be supplied.", 
       call. = FALSE
     )
   }
@@ -43,9 +43,9 @@ define_correlation <- function(var1, var2, rho_within = NULL, rho_between = NULL
     list(
       var1 = var1,
       var2 = var2,
-      rho_within = .null_to_zero(rho_within),
-      rho_between = .null_to_zero(rho_between)
+      corr_within = .null_to_zero(corr_within),
+      corr_between = .null_to_zero(corr_between)
     ),
-    class = c("multilevel_correlation", "multilevel_spec")
+    class = "correlation"
   )
 }

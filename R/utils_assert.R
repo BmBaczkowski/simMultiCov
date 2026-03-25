@@ -73,10 +73,14 @@
         call. = FALSE
       )
     }
+    probs <- c(probs, 1-probs)
   }
 
   if (!isTRUE(all.equal(sum(probs), 1))) {
-    stop("'probs' must sum to 1", call. = FALSE)
+    stop(
+      paste0("'probs' in ", context, " must sum to 1"),
+      call. = FALSE
+    )
   }
 
 }
@@ -92,4 +96,117 @@
     .var.name = paste0("'labels' in ", context)
   )
 
+}
+
+.assert_class_list <- function(x, class_name, min_len = 1L) {
+  var_name <- deparse(substitute(x))
+
+  checkmate::assert_list(
+    x,
+    min.len = min_len,
+    unique = TRUE,
+    any.missing = FALSE,
+    .var.name = var_name
+  )
+
+  ok <- vapply(x, inherits, logical(1), what = class_name)
+
+  if (!all(ok)) {
+    bad <- which(!ok)
+    stop(
+      sprintf(
+        "All inputs to `%s` must be of class `%s` (invalid element(s): %s).",
+        var_name,
+        class_name,
+        paste(bad, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+
+  invisible(TRUE)
+}
+
+.assert_unique_names <- function(x, err_msg, sep = ", ") {
+  if (anyDuplicated(x)) {
+    dup <- unique(x[duplicated(x)])
+    stop(
+      sprintf(err_msg, paste(dup, collapse = sep)),
+      call. = FALSE
+    )
+  }
+
+  invisible(TRUE)
+}
+
+.assert_covariates <- function(covariates) {
+  .assert_class_list(
+    covariates,
+    class_name = "covariate",
+    min_len = 1L
+  )
+
+  covs_names <- vapply(covariates, `[[`, character(1), "name")
+
+  .assert_unique_names(
+    covs_names,
+    err_msg = "Duplicate covariate names found: %s"
+    )
+
+  names(covariates) <- covs_names
+  covariates
+}
+
+.extract_corr_keys <- function(correlations) {
+  vapply(
+    correlations,
+    function(x) paste(sort(c(x[["var1"]], x[["var2"]])), collapse = "||"),
+    character(1)
+  )
+}
+
+.assert_correlations <- function(correlations, covariates) {
+  .assert_class_list(
+    correlations,
+    class = "correlation",
+    min_len = 0L
+  )
+
+  if (length(correlations) == 0L) {
+    return(invisible(NULL))
+  }
+
+  keys <- .extract_corr_keys(correlations)
+
+  .assert_unique_names(
+    keys,
+    err_msg = paste(
+      "Duplicate correlation pair specification(s):",
+      "%s.",
+      "To define both within and between correlations",
+      "for the same variable pair, use a single call:",
+      "`define_correlation(var1, var2, corr_within = 0.2, corr_between = 0.4)`."
+    )
+  )
+
+  var_names <- unique(
+    vapply(
+      correlations,
+      function(x) sort(c(x[['var1']], x[['var2']])),
+      character(2)
+    )
+  )
+
+  bad <- setdiff(var_names, names(covariates))
+  if (length(bad)) {
+    stop(
+      sprintf(
+        "Correlations: %s are not defined in covariates",
+        paste(bad, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+
+  correlations
 }
