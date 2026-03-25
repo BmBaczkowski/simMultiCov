@@ -9,24 +9,23 @@ simulate.default <- function(x, ...) {
 }
 
 #' @export
-#' @method simulate multilevel_covariates
-simulate.multilevel_covariates <- function(x, seed = NULL, ...) {
-  cat("multilevel_covariates method\n")
+#' @method simulate covariates
+simulate.covariates <- function(x, seed = NULL, ...) {
 
-  df <- .sim_engine(
-    x$n_L1,
-    x$specs$mean,
-    x$D_w,
-    x$D_b,
-    x$L_w,
-    x$L_b,
-    seed
+  df <- .simulation_engine(
+    cluster_sizes = x$cluster_size,
+    mean_vec = unlist(x$specs$mean),
+    D_w = x$specs$D_w,
+    D_b = x$specs$D_b,
+    R_w = x$specs$R_w,
+    R_b = x$specs$R_b,
+    seed = seed
   )
   colnames(df)[1] <- x[['cluster_name']]
 
   is_binary <- which(x[['specs']][['types']] == "binary")
   is_ordinal <- which(x[['specs']][['types']] == "ordinal")
-  cov_names <- names(x$specs$types)
+  cov_names <- x$specs$names
 
   if (is_binary) {
     for (indx in is_binary) {
