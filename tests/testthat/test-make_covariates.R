@@ -3,7 +3,7 @@ create_test_covariates <- function() {
   list(
     make_continuous("x1", icc = 0.3),
     make_continuous("x2", icc = 0.4),
-    make_binary("x3", prob = 0.5, icc = 0),
+    make_binary("x3", prob = 0.5, icc = 1),
     make_ordinal("x4", probs = c(0.3, 0.4, 0.3), icc = 0.1)
   )
 }
