@@ -59,7 +59,6 @@
   )
 
   covs_names <- vapply(covariates, `[[`, character(1), "name")
-  cov_types <- vapply(covariates, `[[`, character(1), "type")
 
   .validate_unique_names(
     covs_names,
@@ -67,7 +66,6 @@
     )
 
   names(covariates) <- covs_names
-  class(covariates) <- c("ml_covariates_validated", class(covariates))
   covariates
 }
 
@@ -124,8 +122,6 @@
     )
   }
 
-  # names(correlations) <- var_names
-  # class(covariates) <- c("ml_correlations_validated", class(correlations))
   correlations
 }
 
@@ -205,19 +201,14 @@
   p <- length(cov_names)
   R_w <- L_w <- diag(p)
   R_b <- L_b <- diag(p)
-  dimnames(R_w) <- list(cov_names, cov_names)
-  dimnames(R_b) <- list(cov_names, cov_names)
+  dimnames(R_w) <- dimnames(R_b) <- list(cov_names, cov_names)
 
   if (is.null(correlations)) {
     return(list(
-      corr_w = list(
-        R = R_w,
-        L = L_w
-      ),
-      corr_b = list(
-        R = R_b,
-        L = L_b
-      )
+      R_w = R_w,
+      R_b = R_b,
+      L_w = L_w,
+      L_b = L_b
     ))
   }
 
@@ -235,7 +226,7 @@
   R_b[idx12] <- rho_b
   R_b[idx21] <- rho_b
 
-  types <- vapply(cov_names, function(x) covariates[[x]][["type"]], character(1))
+  types <- attributes(covariates)['types']
   var_names <- unique(c(var1, var2))
 
   if (any(types[cov_names %in% var_names] == "binary")) {
@@ -246,9 +237,14 @@
     warning("Correlations of ordinal covariate(s) are in latent space.", call. = FALSE)
   }
 
+  corr_w <- .check_and_fix_mat(R_w, "Within-correlation matrix")
+  corr_b <- .check_and_fix_mat(R_b, "Between-correlation matrix")
+
   list(
-    corr_w = .check_and_fix_mat(R_w, "Within-correlation matrix"),
-    corr_b = .check_and_fix_mat(R_b, "Between-correlation matrix")
+    R_w = corr_w$R,
+    R_b = corr_b$R,
+    L_w = corr_w$L,
+    L_b = corr_b$L
   )
 
 }
@@ -262,8 +258,7 @@
   var_b <- iccs * var_total
   var_w <- (1 - iccs) * var_total
 
-  D_b <- diag(length(var_b))
-  D_w <- diag(length(var_w))
+  D_b <- D_w <- diag(length(var_b))
   
   diag(D_b) <- sqrt(var_b)
   diag(D_w) <- sqrt(var_w)
@@ -274,4 +269,43 @@
     std_diag_w = D_w,
     std_diag_b = D_b
   )
+}
+
+.get_feature <- function(covariates, name) {
+
+  # Extract raw values
+  vals <- lapply(covariates, function(x) x[[name]])
+  
+  # Decide type (ignore NULLs)
+  non_null <- Filter(Negate(is.null), vals)
+
+  if (length(non_null) == 0) {
+    names(vals) <- names(covariates)
+    return(vals)
+  } 
+
+  if (all(vapply(non_null, is.numeric, logical(1)))) {
+    out <- vapply(
+      vals,
+      function(v) if (is.null(v)) NA_real_ else v,
+      numeric(1)
+    )
+  } else if (all(vapply(non_null, is.character, logical(1)))) {
+    out <- vapply(
+      vals,
+      function(v) if (is.null(v)) NA_character_ else v,
+      character(1)
+    )
+  } else if (all(vapply(non_null, is.list, logical(1)))) {
+    out <- lapply(
+      vals,
+      function(v) {
+        if (is.null(v)) return(NULL)
+        v
+      }
+    )
+  }
+
+  names(out) <- names(covariates)
+  out
 }

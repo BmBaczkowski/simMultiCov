@@ -50,11 +50,11 @@ ordinal_covariate <- function(
   structure(
     list(
       name = name,
-      probs = probs,
+      prob = list(probs),
       icc = icc, 
       mean = 0,
       sd = 1,
-      labels = labels,
+      labels = list(labels),
       type = "ordinal"
     ),
     class = c("ml_covariate", "ml_covariate_ordinal")

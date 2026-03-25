@@ -47,11 +47,11 @@ binary_covariate <- function(
   structure(
     list(
       name = name,
-      prob = prob,
+      prob = list(c(prob, 1 - prob)),
       mean = 0,
       sd = 1,
       icc = icc, 
-      labels = labels,
+      labels = list(labels),
       type = "binary"
     ),
     class = c("ml_covariate", "ml_covariate_binary")

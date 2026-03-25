@@ -23,8 +23,6 @@ ml_covariates <- function(
     .var.name = "n_L1"
   )
 
-
-
   # Coerce n_L1 to vector of length n_L2
   n_L1 <- if (length(n_L1) == 1L) {
     rep(as.integer(n_L1), n_L2)
@@ -43,20 +41,60 @@ ml_covariates <- function(
     .var.name = "cluster_name"
   )
 
+  # Validate covariate list
   covariates <- .validate_covariates(covariates)
-  correlations <- .validate_correlations(correlations, covariates)
-  R_mat <- .build_R_mat(correlations, covariates)
 
-  D <- .build_D_mat(covariates)
+  # Validate correlation list
+  correlations <- .validate_correlations(correlations, covariates)
+
+  # Build output components
+  R_mat <- .build_R_mat(correlations, covariates)
+  D_mat <- .build_D_mat(covariates)
+
+  specs <- list(
+    n_covariates = length(names(covariates)),
+    types = .get_feature(covariates, "type"),
+    icc = .get_feature(covariates, "icc"),
+    sd = .get_feature(covariates, "sd"),
+    mean = .get_feature(covariates, "mean"),
+    probs = .get_feature(covariates, "prob"),
+    probs = .get_feature(covariates, "labels")
+  )
+
+  is_non_continuous <- which(specs[["types"]] %in% c("binary", "ordinal"))
+
+  if (length(is_non_continuous)) {
+    problematic <- any(
+      R_mat$R_w[is_non_continuous, -is_non_continuous, drop = FALSE] != 0
+    ) || any(
+      R_mat$R_b[is_non_continuous, -is_non_continuous, drop = FALSE] != 0
+    )
+
+    if (problematic) {
+      warning("Correlations of binary / ordinal covariate(s) are in latent space.", call. = FALSE)
+    }
+  }
 
   structure(
-    c(list(
+    list(
+      # Dimensions
       n_L2 = n_L2,
       n_L1 = n_L1,
-      parameters = covariates
-    ),
-    D,
-    R_mat
+
+      # Covariate specs
+      specs = specs,
+
+      # Sampling components (Cholesky factors)
+      L_w = R_mat$L_w,
+      L_b = R_mat$L_b,
+
+      # Standard deviation matrices
+      D_w = D_mat$std_diag_w,
+      D_b = D_mat$std_diag_b,
+
+      # Correlation matrices (for reference/debugging)
+      R_w = R_mat$R_w,
+      R_b = R_mat$R_b
     ),
     class = "ml_covariates"
   )
