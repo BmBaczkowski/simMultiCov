@@ -58,7 +58,7 @@ ml_covariates <- function(
     sd = .get_feature(covariates, "sd"),
     mean = .get_feature(covariates, "mean"),
     probs = .get_feature(covariates, "prob"),
-    probs = .get_feature(covariates, "labels")
+    labels = .get_feature(covariates, "labels")
   )
 
   is_non_continuous <- which(specs[["types"]] %in% c("binary", "ordinal"))

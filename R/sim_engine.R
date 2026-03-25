@@ -15,8 +15,14 @@
   D_w,
   D_b,
   L_w,
-  L_b
+  L_b,
+  seed = NULL
 ) {
+
+  if (!is.null(seed)) {
+    set.seed(seed)
+  }
+  
   n_clusters <- length(cluster_sizes)
   n_obs <- sum(cluster_sizes)
   n_vars <- length(mean_vec)
@@ -35,8 +41,5 @@
   # Shift by variable means
   X <- sweep(t(X), 2L, mean_vec, FUN = "+")
 
-  list(
-    X = X,
-    cluster_id = cluster_id
-  )
+  data.frame(cluster = cluster_id, X)
 }

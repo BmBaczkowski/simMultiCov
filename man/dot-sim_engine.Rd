@@ -4,7 +4,7 @@
 \alias{.sim_engine}
 \title{Internal engine for clustered variables simulation}
 \usage{
-.sim_engine(cluster_sizes, mean_vec, D_w, D_b, L_w, L_b)
+.sim_engine(cluster_sizes, mean_vec, D_w, D_b, L_w, L_b, seed = NULL)
 }
 \description{
 Assumes:
