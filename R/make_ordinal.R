@@ -1,4 +1,4 @@
-ordinal_covariate <- function(
+make_ordinal <- function(
   name,
   probs,
   icc,
@@ -9,7 +9,7 @@ ordinal_covariate <- function(
     name,
     len = 1L,
     min.chars = 1L,
-    .var.name = "ordinal_covariate_name"
+    .var.name = "make_ordinal_name"
   )
 
   checkmate::assert_numeric(
@@ -19,7 +19,7 @@ ordinal_covariate <- function(
     finite = TRUE,
     lower = 1e-5,
     upper = 1 - 1e-5,
-    .var.name = "ordinal_covariate_probs"
+    .var.name = "make_ordinal_probs"
   )
   if (!isTRUE(all.equal(sum(probs), 1))) {
     stop("'probs' must sum to 1", call. = FALSE)
@@ -32,7 +32,7 @@ ordinal_covariate <- function(
     upper = 1,
     finite = TRUE,
     any.missing = FALSE,
-    .var.name = "ordinal_covariate_icc"
+    .var.name = "make_ordinal_icc"
   )
 
   checkmate::assert_character(
@@ -41,7 +41,7 @@ ordinal_covariate <- function(
     min.chars = 1L,
     null.ok = TRUE,
     any.missing = FALSE,
-    .var.name = "ordinal_covariate_labels"
+    .var.name = "make_ordinal_labels"
   )
   if (is.null(labels)) {
     labels <- LETTERS[1:length(probs)]
@@ -57,7 +57,7 @@ ordinal_covariate <- function(
       labels = list(labels),
       type = "ordinal"
     ),
-    class = c("ml_covariate", "ml_covariate_ordinal")
+    class = c("multilevel_covariate", "multilevel_ordinal")
   )
 
 }

@@ -54,7 +54,7 @@
 .validate_covariates <- function(covariates) {
   .assert_typed_list(
     covariates,
-    class_name = "ml_covariate",
+    class_name = "multilevel_covariate",
     min_len = 1L
   )
 
@@ -82,7 +82,7 @@
 .validate_correlations <- function(correlations, covariates) {
   .assert_typed_list(
     correlations,
-    class = "ml_corr_pair",
+    class = "multilevel_correlation",
     min_len = 0L
   )
 
@@ -99,7 +99,7 @@
       "%s.",
       "To define both within and between correlations",
       "for the same variable pair, use a single call:",
-      "`corr_pair(var1, var2, rho_within = 0.2, rho_between = 0.4)`."
+      "`define_correlation(var1, var2, rho_within = 0.2, rho_between = 0.4)`."
     )
   )
 

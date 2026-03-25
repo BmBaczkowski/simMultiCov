@@ -1,4 +1,4 @@
-continuous_covariate <- function(
+make_continuous <- function(
   name, 
   mean = 0,
   sd = 1,
@@ -9,14 +9,14 @@ continuous_covariate <- function(
     name,
     len = 1L,
     min.chars = 1L,
-    .var.name = "continuous_covariate_name"
+    .var.name = "make_continuous_name"
   )
 
   checkmate::assert_numeric(
     mean, 
     len = 1L,
     any.missing = FALSE,
-    .var.name = "continuous_covariate_mean"
+    .var.name = "make_continuous_mean"
   )
 
   checkmate::assert_numeric(
@@ -25,7 +25,7 @@ continuous_covariate <- function(
     lower = 1e-10,
     finite = TRUE,
     any.missing = FALSE,
-    .var.name = "continuous_covariate_sd"
+    .var.name = "make_continuous_sd"
   )
 
   checkmate::assert_numeric(
@@ -35,7 +35,7 @@ continuous_covariate <- function(
     upper = 1,
     finite = TRUE,
     any.missing = FALSE,
-    .var.name = "continuous_covariate_icc"
+    .var.name = "make_continuous_icc"
   )
 
   structure(
@@ -46,9 +46,7 @@ continuous_covariate <- function(
       icc = icc,
       type = "continuous"
     ),
-    class = c("ml_covariate", "ml_covariate_continous")
+    class = c("multilevel_covariate", "multilevel_continuous")
   )
 
 }
-
-

@@ -1,4 +1,4 @@
-corr_pair <- function(var1, var2, rho_within = NULL, rho_between = NULL) {
+define_correlation <- function(var1, var2, rho_within = NULL, rho_between = NULL) {
   checkmate::assert_string(var1, min.chars = 1L, .var.name = "var1")
   checkmate::assert_string(var2, min.chars = 1L, .var.name = "var2")
 
@@ -46,6 +46,6 @@ corr_pair <- function(var1, var2, rho_within = NULL, rho_between = NULL) {
       rho_within = .null_to_zero(rho_within),
       rho_between = .null_to_zero(rho_between)
     ),
-    class = c("ml_corr_pair", "ml_spec")
+    class = c("multilevel_correlation", "multilevel_spec")
   )
 }

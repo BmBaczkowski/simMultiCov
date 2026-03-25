@@ -1,4 +1,4 @@
-ml_covariates <- function(
+make_covariates <- function(
   n_L2,
   n_L1,
   cluster_name = "cluster",
@@ -7,8 +7,8 @@ ml_covariates <- function(
 ) {
 
   # Handle nested list case
-  covariates <- .unwrap_nested_list(covariates, "ml_covariate")
-  correlations <- .unwrap_nested_list(correlations, "ml_corr_pair")
+  covariates <- .unwrap_nested_list(covariates, "multilevel_covariate")
+  correlations <- .unwrap_nested_list(correlations, "multilevel_correlation")
 
   # Validate n_L2
   n_L2 <- checkmate::assert_int(
@@ -98,15 +98,15 @@ ml_covariates <- function(
       R_w = R_mat$R_w,
       R_b = R_mat$R_b
     ),
-    class = "ml_covariates"
+    class = "multilevel_covariates"
   )
 
 }
 
 
 #' @export
-print.ml_covariates <- function(x, ...) {
-  cli::cli_h1("<ml_covariates>")
+print.multilevel_covariates <- function(x, ...) {
+  cli::cli_h1("<multilevel_covariates>")
 
   # Sample structure
   cli::cli_h2("Sample Structure")
@@ -142,10 +142,10 @@ print.ml_covariates <- function(x, ...) {
 }
 
 #' @export
-summary.ml_covariates <- function(object, ...) {
+summary.multilevel_covariates <- function(object, ...) {
   x <- object
 
-  cli::cli_h1("<ml_covariates>")
+  cli::cli_h1("<multilevel_covariates>")
   cli::cli_text("{.emph Full specification}")
 
   # Sample structure

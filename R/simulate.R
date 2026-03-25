@@ -1,17 +1,17 @@
-my_simulation <- function(x, ...) {
-  UseMethod("my_simulation")
+simulate <- function(x, ...) {
+  UseMethod("simulate")
 }
 
 #' @export
-#' @method my_simulation default
-my_simulation.default <- function(x, ...) {
+#' @method simulate default
+simulate.default <- function(x, ...) {
   cat("Default method\n")
 }
 
 #' @export
-#' @method my_simulation ml_covariates
-my_simulation.ml_covariates <- function(x, seed = NULL, ...) {
-  cat("ml_covariates method\n")
+#' @method simulate multilevel_covariates
+simulate.multilevel_covariates <- function(x, seed = NULL, ...) {
+  cat("multilevel_covariates method\n")
 
   df <- .sim_engine(
     x$n_L1,
@@ -49,6 +49,4 @@ my_simulation.ml_covariates <- function(x, seed = NULL, ...) {
 
   # add attributes for data generating process
 }
-
-
 

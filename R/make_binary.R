@@ -1,4 +1,4 @@
-binary_covariate <- function(
+make_binary <- function(
   name,
   prob,
   icc,
@@ -9,7 +9,7 @@ binary_covariate <- function(
     name,
     len = 1L,
     min.chars = 1L,
-    .var.name = "binary_covariate_name"
+    .var.name = "make_binary_name"
   )
 
   checkmate::assert_numeric(
@@ -19,7 +19,7 @@ binary_covariate <- function(
     upper = 1 - 1e-5,
     finite = TRUE,
     any.missing = FALSE,
-    .var.name = "binary_covariate_prob"
+    .var.name = "make_binary_prob"
   )
 
   checkmate::assert_numeric(
@@ -29,7 +29,7 @@ binary_covariate <- function(
     upper = 1,
     finite = TRUE,
     any.missing = FALSE,
-    .var.name = "binary_covariate_icc"
+    .var.name = "make_binary_icc"
   )
 
   checkmate::assert_character(
@@ -38,7 +38,7 @@ binary_covariate <- function(
     min.chars = 1L,
     null.ok = TRUE,
     any.missing = FALSE,
-    .var.name = "binary_covariate_labels"
+    .var.name = "make_binary_labels"
   )
   if (is.null(labels)) {
     labels <- c("0", "1")
@@ -54,7 +54,7 @@ binary_covariate <- function(
       labels = list(labels),
       type = "binary"
     ),
-    class = c("ml_covariate", "ml_covariate_binary")
+    class = c("multilevel_covariate", "multilevel_binary")
   )
 
 }
