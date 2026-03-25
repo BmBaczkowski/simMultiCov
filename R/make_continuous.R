@@ -1,52 +1,24 @@
 make_continuous <- function(
   name, 
   mean = 0,
-  sd = 1,
+  total_var = 1,
   icc = 0
 ) {
 
-  checkmate::assert_character(
-    name,
-    len = 1L,
-    min.chars = 1L,
-    .var.name = "make_continuous_name"
+  context <- "make_continuous()"
+
+  .assert_covariate_name(name, context)
+  .assert_covariate_mean(mean, context)
+  .assert_covariate_total_var(total_var, context)
+  .assert_covariate_icc(icc, context)
+
+  out <- .make_new_covariate(
+    name = name, 
+    type = "continuous",
+    mean = mean, 
+    total_var = total_var,
+    icc = icc
   )
 
-  checkmate::assert_numeric(
-    mean, 
-    len = 1L,
-    any.missing = FALSE,
-    .var.name = "make_continuous_mean"
-  )
-
-  checkmate::assert_numeric(
-    sd, 
-    len = 1L,
-    lower = 1e-10,
-    finite = TRUE,
-    any.missing = FALSE,
-    .var.name = "make_continuous_sd"
-  )
-
-  checkmate::assert_numeric(
-    icc, 
-    len = 1L,
-    lower = 0,
-    upper = 1,
-    finite = TRUE,
-    any.missing = FALSE,
-    .var.name = "make_continuous_icc"
-  )
-
-  structure(
-    list(
-      name = name,
-      mean = mean,
-      sd = sd,
-      icc = icc,
-      type = "continuous"
-    ),
-    class = c("multilevel_covariate", "multilevel_continuous")
-  )
-
+  out
 }

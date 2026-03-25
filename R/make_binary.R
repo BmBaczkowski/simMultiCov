@@ -5,58 +5,36 @@ make_binary <- function(
   labels = NULL
 ) {
 
-  checkmate::assert_character(
-    name,
-    len = 1L,
-    min.chars = 1L,
-    pattern = "^[^ ]+$",
-    .var.name = "make_binary_name"
-  )
+  context <- "make_binary()"
 
-  checkmate::assert_numeric(
-    prob, 
-    len = 1L,
-    lower = 1e-5,
-    upper = 1 - 1e-5,
-    finite = TRUE,
-    any.missing = FALSE,
-    .var.name = "make_binary_prob"
-  )
+  .assert_covariate_name(name, context)
+  .assert_covariate_probs(prob, context)
+  .assert_covariate_icc(icc, context)
 
-  checkmate::assert_numeric(
-    icc, 
-    len = 1L,
-    lower = 0,
-    upper = 1,
-    finite = TRUE,
-    any.missing = FALSE,
-    .var.name = "make_binary_icc"
-  )
+  probs <- c(prob, 1 - prob)
+  .assert_covariate_labels(labels, probs, context)
 
-  checkmate::assert_character(
-    labels,
-    len = 2L,
-    min.chars = 1L,
-    null.ok = TRUE,
-    any.missing = FALSE,
-    pattern = "^[^ ]+$",
-    .var.name = "make_binary_labels"
-  )
   if (is.null(labels)) {
     labels <- c("0", "1")
+  } else {
+      if (any(grepl(" ", labels))) {
+        stop(
+          paste0("'labels' in ", context, " must not contain spaces"),
+          call. = FALSE
+        )
+      }
   }
 
-  structure(
-    list(
-      name = name,
-      probs = c(prob, 1 - prob),
-      mean = 0,
-      total_var = 1,
-      icc = icc, 
-      labels = labels,
-      type = "binary"
-    ),
-    class = c("multilevel_covariate", "multilevel_binary")
+  out <- .make_new_covariate(
+    name = name, 
+    type = "binary",
+    mean = 0,
+    total_var = 1,
+    icc = icc,
+    probs = probs,
+    labels = labels 
   )
+
+  out
 
 }
