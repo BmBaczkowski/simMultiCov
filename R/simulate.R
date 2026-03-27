@@ -5,7 +5,7 @@ simulate <- function(x, ...) {
 #' @export
 #' @method simulate default
 simulate.default <- function(x, ...) {
-  cat("Default method\n")
+  message("Default method\n")
 }
 
 #' @export
