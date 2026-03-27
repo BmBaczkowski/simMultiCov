@@ -1,32 +1,44 @@
 # --- Test binary covariates ---
 
 test_that("make_ordinal creates valid object with default parameters", {
-  result <- make_ordinal("x", probs = c(.2, .3, .5), icc = 1)
+  p <- c(.2, .3, .5)
+  result <- make_ordinal("x", probs = p, icc = 1)
 
   expect_s3_class(result, "covariate")
   expect_s3_class(result, "covariate_ordinal")
   expect_equal(result$name, "x")
   expect_equal(result$type, "ordinal")
-  expect_equal(result$specs$probs, c(.2, .3, .5))
-  expect_equal(result$specs$labels, c("A", "B", "C"))
+  expect_equal(
+    result$specs$probs, 
+    setNames(
+      as.list(p),
+      LETTERS[1:length(p)]
+    )
+  )
   expect_equal(result$specs$mean, 0)
   expect_equal(result$specs$total_var, 1)
   expect_equal(result$specs$icc, 1)
 })
 
 test_that("make_ordinal creates object with custom labels", {
+  p <- c(0.3, 0.6, 0.1)
   result <- make_ordinal(
     name = "test_var",
-    probs = c(0.3, 0.6, 0.1),
+    probs = p,
     icc = 0.1,
     labels = c("A", "B", "C")
   )
 
   expect_equal(result$name, "test_var")
   expect_equal(result$type, "ordinal")
-  expect_equal(result$specs$probs, c(0.3, 0.6, 0.1))
+  expect_equal(
+    result$specs$probs, 
+    setNames(
+      as.list(p),
+      LETTERS[1:length(p)]
+    )
+  )
   expect_equal(result$specs$icc, 0.1)
-  expect_equal(result$specs$labels, c("A", "B", "C"))
 })
 
 
