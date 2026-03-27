@@ -7,10 +7,7 @@ test_that("make_binary creates valid object with default parameters", {
   expect_s3_class(result, "covariate_binary")
   expect_equal(result$name, "x")
   expect_equal(result$type, "binary")
-  expect_equal(
-    identical(result$specs$probs, list("A" = 0.5, "B" = 0.5)),
-    TRUE
-    )
+  expect_equal(result$specs$probs, list("A" = 0.5, "B" = 0.5))
   expect_equal(result$specs$mean, 0)
   expect_equal(result$specs$total_var, 1)
   expect_equal(result$specs$icc, 1)
@@ -122,4 +119,13 @@ test_that("make_binary handles edge case icc values", {
 
   expect_equal(result_0$specs$icc, 0)
   expect_equal(result_1$specs$icc, 1)
+})
+
+test_that("make_binary handles boundary prob values", {
+  p <- 1e-4
+  result_low <- make_binary("x", prob = p, icc = 0)
+  result_high <- make_binary("x", prob = 1 - p, icc = 0)
+
+  expect_equal(result_low$specs$probs, list("A" = p, "B" = 1 - p))
+  expect_equal(result_high$specs$probs, list("A" = 1 - p, "B" = p))
 })

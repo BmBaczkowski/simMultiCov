@@ -13,6 +13,7 @@ test_that("make_continuous creates valid object with default parameters", {
 
 })
 
+
 test_that("make_continuous creates object with custom parameters", {
   result <- make_continuous(
     name = "test_var",
@@ -27,6 +28,7 @@ test_that("make_continuous creates object with custom parameters", {
   expect_equal(result$specs$total_var, 10)
   expect_equal(result$specs$icc, 0.05)
 })
+
 
 test_that("make_continuous fails with invalid name", {
   expect_error(
@@ -43,6 +45,7 @@ test_that("make_continuous fails with invalid name", {
   )
 })
 
+
 test_that("make_continuous fails with invalid mean", {
   expect_error(
     make_continuous("x", mean = "a"),
@@ -57,6 +60,7 @@ test_that("make_continuous fails with invalid mean", {
     "name|make_continuous()"
   )
 })
+
 
 test_that("make_continuous fails with invalid total_var", {
   expect_error(
@@ -76,6 +80,7 @@ test_that("make_continuous fails with invalid total_var", {
     "total_var|make_continuous()"
   )
 })
+
 
 test_that("make_continuous fails with invalid icc", {
   expect_error(
@@ -104,13 +109,4 @@ test_that("make_continuous handles edge case icc values", {
 
   expect_equal(result_0$specs$icc, 0)
   expect_equal(result_1$specs$icc, 1)
-})
-
-test_that("make_binary handles boundary prob values", {
-  p <- 1e-5
-  result_low <- make_binary("x", prob = p, icc = 0)
-  result_high <- make_binary("x", prob = 1 - p, icc = 0)
-
-  expect_equal(result_low$specs$probs, c(p, 1 - p))
-  expect_equal(result_high$specs$probs, c(1 - p, p))
 })
