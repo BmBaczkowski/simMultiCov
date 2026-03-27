@@ -1,7 +1,4 @@
 make_covariates <- function(
-  n_clusters,
-  cluster_size,
-  cluster_name = "cluster",
   covariates = list(),
   correlations = list()
 ) {
@@ -10,37 +7,6 @@ make_covariates <- function(
   covariates <- .unwrap_nested_list(covariates, "covariate")
   correlations <- .unwrap_nested_list(correlations, "correlation")
 
-  # Validate n_clusters
-  n_clusters <- checkmate::assert_int(
-    n_clusters, lower = 1L, coerce = TRUE, .var.name = "n_clusters"
-  )
-
-  # Validate cluster_size
-  checkmate::assert_integerish(
-    cluster_size,
-    lower = 1L,
-    any.missing = FALSE,
-    .var.name = "cluster_size"
-  )
-
-  # Coerce cluster_size to vector of length n_clusters
-  cluster_size <- if (length(cluster_size) == 1L) {
-    rep(as.integer(cluster_size), n_clusters)
-  } else {
-    if (!length(cluster_size) == n_clusters) {
-      stop("'cluster_size' must be a scalar or a vector of length 'n_clusters'.", call. = FALSE)
-    }
-    as.integer(cluster_size)
-  }
-
-  # Validate cluster_name
-  checkmate::assert_character(
-    cluster_name,
-    len = 1L,
-    min.chars = 1L,
-    .var.name = "cluster_name"
-  )
-
   # Validate covariate list
   covariates <- .assert_covariates(covariates)
 
@@ -48,37 +14,46 @@ make_covariates <- function(
   correlations <- .assert_correlations(correlations, covariates)
 
   # Build output components
-  R_mat <- .build_R_mat(correlations, covariates)
-  D_mat <- .build_D_mat(covariates)
+  R_w <- .build_R_mat(correlations, covariates, "within")
+  R_b <- .build_R_mat(correlations, covariates, "between")
+  D_w <- .build_D_mat(covariates, "within")
+  D_b <- .build_D_mat(covariates, "between")
 
   # Compute variance-covariance matrix
-  Sigma_w <- D_mat$D_w %*% R_mat$R_w %*% D_mat$D_w
-  Sigma_b <- D_mat$D_b %*% R_mat$R_b %*% D_mat$D_b
+  Sigma_w <- D_w %*% R_w %*% D_w
+  Sigma_b <- D_b %*% R_b %*% D_b
 
+  # 
   specs <- list(
     n_covariates = length(names(covariates)),
     names = names(covariates),
-    types = vapply(covariates, `[[`, character(1), "type"),
+    types = attr(covariates, "types"),
     icc = .get_covariate_specs(covariates, "icc"),
     total_var = .get_covariate_specs(covariates, "total_var"),
     mean = .get_covariate_specs(covariates, "mean"),
     probs = .get_covariate_specs(covariates, "probs"),
-    labels = .get_covariate_specs(covariates, "labels"),
-    R_w = R_mat$R_w,
-    R_b = R_mat$R_b,
-    D_b = D_mat$D_b,
-    D_w = D_mat$D_w,
+    R_b = R_b,
+    R_w = R_w,
+    D_b = D_b,
+    D_w = D_w,
     Sigma_b = Sigma_b,
-    Sigma_w = Sigma_w
+    Sigma_w = Sigma_w,
+    .L_b = NULL,
+    .L_w = NULL
   )
 
-  is_non_continuous <- which(specs[["types"]] %in% c("binary", "ordinal"))
 
-  if (length(is_non_continuous)) {
-    problematic <- any(
-      R_mat$R_w[is_non_continuous, -is_non_continuous, drop = FALSE] != 0
-    ) || any(
-      R_mat$R_b[is_non_continuous, -is_non_continuous, drop = FALSE] != 0
+  # Pre-compute conversion thresholds for binary/ordinal
+  thresholds <- .find_thresholds(specs, "binary")
+  thresholds <- c(
+    thresholds,
+    .find_thresholds(specs, "ordinal")
+  )
+
+  if (!is.null(thresholds)) {
+    indx <- which(names(thresholds) %in% specs$names)
+    problematic <- any(R_w[indx, -indx, drop = FALSE] != 0) || 
+      any(R_b[indx, indx, drop = FALSE] != 0
     )
 
     if (problematic) {
@@ -87,11 +62,10 @@ make_covariates <- function(
   }
 
   structure(
-    list(
-      n_clusters = n_clusters,
-      cluster_size = cluster_size,
-      cluster_name = cluster_name,
-      specs = specs
+    c(specs,
+      list(
+        .thresholds = thresholds
+      )
     ),
     class = "covariates"
   )

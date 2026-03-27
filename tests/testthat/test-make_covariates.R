@@ -17,8 +17,8 @@ create_test_correlations <- function() {
 test_that("make_covariates creates valid object with minimum valid inputs", {
   covs <- create_test_covariates()
   result <- make_covariates(
-    n_clusters = 5,
-    cluster_size = 10,
+    # n_clusters = 5,
+    # cluster_size = 10,
     covariates = covs
   )
 
@@ -30,9 +30,9 @@ test_that("make_covariates creates valid object with all parameters", {
   corrs <- create_test_correlations()
 
   result <- make_covariates(
-    n_clusters = 5,
-    cluster_size = 10,
-    cluster_name = "school",
+    # n_clusters = 5,
+    # cluster_size = 10,
+    # cluster_name = "school",
     covariates = covs,
     correlations = corrs
   )

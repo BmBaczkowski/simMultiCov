@@ -10,47 +10,116 @@ simulate.default <- function(x, ...) {
 
 #' @export
 #' @method simulate covariates
-simulate.covariates <- function(x, seed = NULL, ...) {
+simulate.covariates <- function(
+  x,
+  n_clusters,
+  cluster_size,
+  cluster_name = "cluster",
+  seed = NULL, 
+  n_datasets = 1L,
+  ...
+) {
 
-  df <- .simulation_engine(
-    cluster_sizes = x$cluster_size,
-    mean_vec = unlist(x$specs$mean),
-    D_w = x$specs$D_w,
-    D_b = x$specs$D_b,
-    R_w = x$specs$R_w,
-    R_b = x$specs$R_b,
-    seed = seed
+  old_seed <- .get_seed()
+  on.exit({
+    if (!is.null(old_seed)) .Random.seed <<- old_seed
+  }, add = TRUE)
+
+  # Validate n_clusters
+  n_clusters <- checkmate::assert_int(
+    n_clusters, lower = 1L, coerce = TRUE, .var.name = "n_clusters"
   )
-  colnames(df)[1] <- x[['cluster_name']]
 
-  is_binary <- which(x[['specs']][['types']] == "binary")
-  is_ordinal <- which(x[['specs']][['types']] == "ordinal")
-  cov_names <- x$specs$names
+  # Validate cluster_size
+  checkmate::assert_integerish(
+    cluster_size,
+    lower = 1L,
+    any.missing = FALSE,
+    .var.name = "cluster_size"
+  )
 
-  if (is_binary) {
-    for (indx in is_binary) {
-      var_name <- cov_names[indx]
-      p <- unlist(x[['specs']][['probs']][[var_name]])
-      labels <- unlist(x[['specs']][['labels']][[var_name]])
-      df[, var_name] <- .to_binary(df[, var_name], p[1], labels)
+  # Coerce cluster_size to vector of length n_clusters
+  cluster_size <- if (length(cluster_size) == 1L) {
+    rep(as.integer(cluster_size), n_clusters)
+  } else {
+    if (!length(cluster_size) == n_clusters) {
+      stop("'cluster_size' must be a scalar or a vector of length 'n_clusters'.", call. = FALSE)
     }
+    as.integer(cluster_size)
   }
 
-  if (is_ordinal) {
-    for (indx in is_ordinal) {
-      var_name <- cov_names[indx]
-      p <- unlist(x[['specs']][['probs']][[var_name]])
-      labels <- unlist(x[['specs']][['labels']][[var_name]])
-      df[, var_name] <- .to_ordinal(df[, var_name], p, labels)
-    }
-  }
-  df
-
-  # add attributes for data generating process
-  attributes(df) <- list(
-    mean = unlist(x$specs$mean),
-    Sigma_w = x$specs$Sigma_w, 
-    Sigma_b = x$specs$Sigma_b, 
+  # Validate cluster_name
+  checkmate::assert_character(
+    cluster_name,
+    len = 1L,
+    min.chars = 1L,
+    .var.name = "cluster_name"
   )
+
+  # Validate n_datasets
+  n_datasets <- checkmate::assert_int(
+    n_datasets, lower = 1L, coerce = TRUE, .var.name = "n_datasets"
+  )
+
+  # Obtain and cache Cholesky
+  L_w <- .get_Cholesky_mat(x$R_w)  
+  L_b <- .get_Cholesky_mat(x$R_b) 
+
+  # Single dataset case
+  if (n_datasets == 1L) {
+    df <- .simulation_engine(
+      cluster_sizes = cluster_size,
+      mean_vec = x$mean,
+      D_w = x$D_w,
+      D_b = x$D_b,
+      L_w = L_w,
+      L_b = L_b,
+      seed = seed
+    )
+    colnames(df)[colnames(df) == "cluster"] <- cluster_name
+    df <- .apply_conversions(df, x$.thresholds)
+    df <- structure(
+      df,
+      class = c("simulation", class(df)),
+      DGP = list(
+        mu = x$mean, 
+        Sigma_w = x$Sigma_w,
+        Sigma_b = x$Sigma_b
+      )
+    )
+    return(df)
+  }
+
+  # Multiple datasets case
+  datasets <- vector("list", n_datasets)
+
+  for (i in seq_len(n_datasets)) {
+    # Increment seed for each dataset
+    current_seed <- if (!is.null(seed)) seed + i - 1L else NULL
+    
+    df <- .simulation_engine(
+      cluster_sizes = cluster_size,
+      mean_vec = x$mean,
+      D_w = x$D_w,
+      D_b = x$D_b,
+      L_w = L_w,
+      L_b = L_b,
+      seed = current_seed
+    )
+    colnames(df)[colnames(df) == "cluster"] <- cluster_name
+    df <- .apply_conversions(df, x$.thresholds)
+    df <- structure(
+      df,
+      class = c("simulation", class(df)),
+      DGP = list(
+        mu = x$mean, 
+        Sigma_w = x$Sigma_w,
+        Sigma_b = x$Sigma_b
+      )
+    )    
+    datasets[[i]] <- df
+  }
+  
+  datasets
 }
 

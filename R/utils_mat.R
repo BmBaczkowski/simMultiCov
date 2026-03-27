@@ -68,68 +68,69 @@
   R
 }
 
-.build_R_mat <- function(correlations, covariates) {
-  
+.build_R_mat <- function(correlations, covariates, context) {
+  if (context == "within") {
+    rho_type <- "corr_within"
+    msg <- "Within-correlation matrix"
+  } else if (context == "between") {
+    rho_type <- "corr_between"
+    msg <- "Between-correlation matrix"
+  }
   cov_names <- names(covariates)
-  p <- length(cov_names)
-  R_w <- L_w <- diag(p)
-  R_b <- L_b <- diag(p)
-  dimnames(R_w) <- dimnames(R_b) <- list(cov_names, cov_names)
+  R <- diag(length(cov_names))
+  dimnames(R) <- list(cov_names, cov_names)
 
   if (is.null(correlations)) {
-    return(list(
-      R_w = R_w,
-      R_b = R_b,
-      L_w = L_w,
-      L_b = L_b
-    ))
+    return(R)
   }
 
   var1 <- vapply(correlations, `[[`, character(1), "var1")
   var2 <- vapply(correlations, `[[`, character(1), "var2")
-  rho_w <- vapply(correlations, `[[`, numeric(1), "corr_within")
-  rho_b <- vapply(correlations, `[[`, numeric(1), "corr_between")
+  rho <- vapply(correlations, `[[`, numeric(1), rho_type)
 
   idx12 <- cbind(var1, var2)
   idx21 <- cbind(var2, var1)
 
-  R_w[idx12] <- rho_w
-  R_w[idx21] <- rho_w
+  R[idx12] <- rho
+  R[idx21] <- rho
 
-  R_b[idx12] <- rho_b
-  R_b[idx21] <- rho_b
+  R <- .assert_R_mat(R, msg)
 
-  R_w <- .assert_R_mat(R_w, "Within-correlation matrix")
-  R_b <- .assert_R_mat(R_b, "Between-correlation matrix")
-
-  list(
-    R_w = R_w,
-    R_b = R_b
-  )
-
+  R
 }
 
-.build_D_mat <- function(covariates) {
+.build_D_mat <- function(covariates, type) {
   covs_names <- names(covariates)
-  var_total <- unlist(
-    .get_covariate_specs(covariates, "total_var")
-  )
-  icc <- unlist(
-    .get_covariate_specs(covariates, "icc")
-  )
+  var_total <- .get_covariate_specs(covariates, "total_var")
+  icc <- .get_covariate_specs(covariates, "icc")
 
-  var_b <- icc * var_total
-  var_w <- (1 - icc) * var_total
+  if (type == "within") {
+    var <- (1 - icc) * var_total
+  } else if (type == "between") {
+    var <- icc * var_total
 
-  D_b <- D_w <- diag(length(var_b))
+  }
   
-  diag(D_b) <- sqrt(var_b)
-  diag(D_w) <- sqrt(var_w)
+  D <- diag(length(var))
+  diag(D) <- sqrt(var)
+  dimnames(D) <- list(covs_names, covs_names)
 
-  dimnames(D_b) <- dimnames(D_w) <- list(covs_names, covs_names)
+  D
+}
 
-  list(
-    D_w = D_w,
-    D_b = D_b
-  )
+
+# Environment for persistent cache
+.cholesky_cache <- new.env(parent = emptyenv())
+
+.get_Cholesky_mat <- function(R) {
+  cache_key <- digest::digest(R)
+  
+  if (exists(cache_key, envir = .cholesky_cache)) {
+    return(get(cache_key, envir = .cholesky_cache))
+  }
+  
+  # Compute and cache
+  L <- t(chol(R))
+  assign(cache_key, L, envir = .cholesky_cache)
+  L
 }

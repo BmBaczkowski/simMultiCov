@@ -31,8 +31,10 @@ make_binary <- function(
     mean = 0,
     total_var = 1,
     icc = icc,
-    probs = probs,
-    labels = labels 
+    probs = setNames(
+      as.list(probs),
+      labels
+    )
   )
 
   out

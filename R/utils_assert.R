@@ -146,14 +146,18 @@
     min_len = 1L
   )
 
-  covs_names <- vapply(covariates, `[[`, character(1), "name")
+  cov_names <- vapply(covariates, `[[`, character(1), "name")
 
   .assert_unique_names(
-    covs_names,
+    cov_names,
     err_msg = "Duplicate covariate names found: %s"
     )
 
-  names(covariates) <- covs_names
+  cov_types <- vapply(covariates, `[[`, character(1), "type")
+  attributes(covariates) <- list(
+    names = cov_names,
+    types = cov_types
+  )
   covariates
 }
 

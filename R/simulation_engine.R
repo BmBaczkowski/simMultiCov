@@ -5,8 +5,8 @@
   mean_vec,
   D_w,
   D_b,
-  R_w,
-  R_b,
+  L_w,
+  L_b,
   seed = NULL
 ) {
 
@@ -24,10 +24,6 @@
   # Standard normal draws for between- and within-cluster components
   z_b <- matrix(rnorm(n_clusters * n_vars), nrow = n_vars, ncol = n_clusters)
   z_w  <- matrix(rnorm(n_obs * n_vars), nrow = n_vars, ncol = n_obs)
-
-  # Extract lower Cholesky from correlation matrix
-  L_b <- t(chol(R_b))
-  L_w <- t(chol(R_w))
   
   # Construct cluster-level effects and expand to observations
   X <- D_b %*% L_b %*% z_b 
