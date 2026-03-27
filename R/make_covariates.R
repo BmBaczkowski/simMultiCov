@@ -75,24 +75,12 @@ make_covariates <- function(
 
 #' @export
 print.covariates <- function(x, ...) {
-  cli::cli_h1("<covariates>")
-
-  # Sample structure
-  cli::cli_h2("Sample Structure")
-  .print_field("Cluster name", x$cluster_name)
-  .print_field("Cluster number", x$n_clusters)
-
-  cli::cli_text(
-    paste(
-      "{.strong Observations per cluster}:",
-      "min={min(x$cluster_size)}, max={max(x$cluster_size)}, total={sum(x$cluster_size)}"
-    )
-  )
+  cli::cli_h1(paste0("<", class(x), ">"))
 
   # Covariate summary
-  cli::cli_h2("Covariates ({x$specs$n_covariates})")
-  cov_names <- names(x$specs$types)
-  cov_types <- x$specs$types
+  cli::cli_h2("Covariates ({x$n_covariates})")
+  cov_names <- x$names
+  cov_types <- x$types
 
   for (i in seq_along(cov_names)) {
     cli::cli_text("• {.strong {cov_names[[i]]}}: {cov_types[[i]]}")
@@ -113,20 +101,14 @@ print.covariates <- function(x, ...) {
 #' @export
 summary.covariates <- function(x, ...) {
 
-  cli::cli_h1("<covariates>")
+  cli::cli_h1(paste0("<", class(x), ">"))
   cli::cli_text("{.emph Full specification}")
-
-  # Sample
-  cli::cli_h2("Sample")
-  .print_field("N clusters", x$n_clusters)
-  cli::cli_text("{.strong Cluster sizes}: {paste(x$cluster_size, collapse = ', ')}")
-  .print_field("Total observations", sum(x$cluster_size))
 
   # Covariate details table
   cli::cli_h2("Structure")
 
-  cov_names <- x$specs$names
-  cov_types <- x$specs$types
+  cov_names <- x$names
+  cov_types <- x$types
 
   is_non_continuous <- which(cov_types %in% c("binary", "ordinal"))
   cov_types[is_non_continuous] <- paste(cov_types[is_non_continuous], "(latent)")
@@ -135,9 +117,9 @@ summary.covariates <- function(x, ...) {
   df <- data.frame(
     Name = cov_names,
     Type = cov_types,
-    ICC = unlist(x$specs$icc),
-    Mean = unlist(x$specs$mean),
-    Var = unlist(x$specs$total_var),
+    ICC = unlist(x$icc),
+    Mean = unlist(x$mean),
+    Var = unlist(x$total_var),
     stringsAsFactors = FALSE
   )
 
@@ -147,19 +129,19 @@ summary.covariates <- function(x, ...) {
   # Correlation matrices
   cli::cli_h2("Correlations")
   cli::cli_h3("Within-Cluster")
-  print(round(x$specs$R_w, 3))
+  print(round(x$R_w, 3))
 
   cli::cli_h3("Between-Cluster")
-  print(round(x$specs$R_b, 3))
+  print(round(x$R_b, 3))
 
   # Variance-covariance matrices
   cli::cli_h2("Variance-Covariance")
   cli::cli_h3("Within-Cluster ")
-  print(round(x$specs$Sigma_w, 3))
+  print(round(x$Sigma_w, 3))
 
   cli::cli_text("")
   cli::cli_h3("Between-Cluster")
-  print(round(x$specs$Sigma_b, 3))
+  print(round(x$Sigma_b, 3))
 
   invisible(x)
 }
