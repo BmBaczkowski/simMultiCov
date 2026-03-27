@@ -7,12 +7,15 @@ test_that("make_binary creates valid object with default parameters", {
   expect_s3_class(result, "covariate_binary")
   expect_equal(result$name, "x")
   expect_equal(result$type, "binary")
-  expect_equal(result$specs$probs, c(0.5, 0.5))
-  expect_equal(result$specs$labels, c("0", "1"))
+  expect_equal(
+    identical(result$specs$probs, list("A" = 0.5, "B" = 0.5)),
+    TRUE
+    )
   expect_equal(result$specs$mean, 0)
   expect_equal(result$specs$total_var, 1)
   expect_equal(result$specs$icc, 1)
 })
+
 
 test_that("make_binary creates object with custom labels", {
   result <- make_binary(
@@ -24,9 +27,11 @@ test_that("make_binary creates object with custom labels", {
 
   expect_equal(result$name, "treated")
   expect_equal(result$type, "binary")
-  expect_equal(result$specs$probs, c(0.3, 0.7))
+  expect_equal(
+    identical(result$specs$probs, list("control" = 0.3, "treatment" = 0.7)),
+    TRUE
+  )
   expect_equal(result$specs$icc, 0.1)
-  expect_equal(result$specs$labels, c("control", "treatment"))
 })
 
 
@@ -48,6 +53,7 @@ test_that("make_binary fails with invalid name", {
     "name|make_binary()"
   )
 })
+
 
 test_that("make_binary fails with invalid prob", {
   expect_error(
@@ -72,6 +78,7 @@ test_that("make_binary fails with invalid prob", {
   )
 })
 
+
 test_that("make_binary fails with invalid icc", {
   expect_error(
     make_binary("x", prob = .5, icc = -0.1),
@@ -90,6 +97,7 @@ test_that("make_binary fails with invalid icc", {
     "icc|make_binary()"
   )
 })
+
 
 test_that("make_binary fails with invalid labels", {
   expect_error(
