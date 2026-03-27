@@ -37,9 +37,7 @@ make_covariates <- function(
     D_b = D_b,
     D_w = D_w,
     Sigma_b = Sigma_b,
-    Sigma_w = Sigma_w,
-    .L_b = NULL,
-    .L_w = NULL
+    Sigma_w = Sigma_w
   )
 
 
@@ -51,10 +49,12 @@ make_covariates <- function(
   )
 
   if (!is.null(thresholds)) {
-    indx <- which(names(thresholds) %in% specs$names)
-    problematic <- any(R_w[indx, -indx, drop = FALSE] != 0) || 
-      any(R_b[indx, indx, drop = FALSE] != 0
-    )
+    indx <- which(specs$names %in% names(thresholds))
+
+    sub_w <- R_w[indx, -indx, drop = FALSE]
+    sub_b <- R_b[indx, -indx, drop = FALSE]
+
+    problematic <- any(sub_w != 0) || any(sub_b != 0)
 
     if (problematic) {
       warning("Correlations of binary / ordinal covariate(s) are in latent space.", call. = FALSE)
