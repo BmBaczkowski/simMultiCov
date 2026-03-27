@@ -15,7 +15,7 @@ make_binary <- function(
   .assert_covariate_labels(labels, probs, context)
 
   if (is.null(labels)) {
-    labels <- c("0", "1")
+    labels <- c("A", "B")
   } else {
       if (any(grepl(" ", labels))) {
         stop(
