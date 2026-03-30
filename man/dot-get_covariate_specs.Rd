@@ -4,17 +4,29 @@
 \alias{.get_covariate_specs}
 \title{Get Covariate Specifications}
 \usage{
-.get_covariate_specs(covariates, name)
+.get_covariate_specs(covariates, name, simplify = TRUE)
 }
 \arguments{
-\item{covariates}{List. A list of covariate objects.}
+\item{covariates}{List. A named list of covariate objects, each containing
+a \code{specs} element.}
 
-\item{name}{Character string. The name of the specification field to extract.}
+\item{name}{Character string. The name of the specification field to extract
+from each covariate's \code{specs}.}
+
+\item{simplify}{Logical. If \code{TRUE} (default), the result is simplified to
+an atomic vector when all extracted elements are of length 1. Otherwise,
+a list is always returned.}
 }
 \value{
-A named vector or list of specification values for each covariate.
+A named object containing the extracted specification for each covariate:
+\itemize{
+\item If \code{simplify = TRUE} and all elements are length 1, an atomic
+vector (e.g., numeric, character).
+\item Otherwise, a named list of values (which may include vectors or lists
+of varying lengths).
+}
 }
 \description{
-Extracts a specific specification field from all covariates in a list.
+Extracts a specific specification field from each covariate in a list.
 }
 \keyword{internal}

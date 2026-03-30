@@ -149,8 +149,8 @@
 #' @keywords internal
 .build_sd_matrix <- function(covariates, type) {
   cov_names <- names(covariates)
-  var_total <- .get_covariate_specs(covariates, "total_var")
-  icc <- .get_covariate_specs(covariates, "icc")
+  var_total <- .get_covariate_specs(covariates, "total_var", simplify = TRUE)
+  icc <- .get_covariate_specs(covariates, "icc", simplify = TRUE)
 
   if (type == "within") {
     var <- (1 - icc) * var_total

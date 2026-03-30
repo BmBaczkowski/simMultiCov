@@ -1,20 +1,35 @@
 #' Get Covariate Specifications
 #'
-#' Extracts a specific specification field from all covariates in a list.
+#' Extracts a specific specification field from each covariate in a list.
 #'
-#' @param covariates List. A list of covariate objects.
-#' @param name Character string. The name of the specification field to extract.
+#' @param covariates List. A named list of covariate objects, each containing
+#'   a \code{specs} element.
+#' @param name Character string. The name of the specification field to extract
+#'   from each covariate's \code{specs}.
+#' @param simplify Logical. If \code{TRUE} (default), the result is simplified to
+#'   an atomic vector when all extracted elements are of length 1. Otherwise,
+#'   a list is always returned.
 #'
-#' @return A named vector or list of specification values for each covariate.
+#' @return
+#' A named object containing the extracted specification for each covariate:
+#' \itemize{
+#'   \item If \code{simplify = TRUE} and all elements are length 1, an atomic
+#'     vector (e.g., numeric, character).
+#'   \item Otherwise, a named list of values (which may include vectors or lists
+#'     of varying lengths).
+#' }
 #'
 #' @keywords internal
-.get_covariate_specs <- function(covariates, name) {
- 
-  out <- sapply(
-    covariates, 
+.get_covariate_specs <- function(covariates, name, simplify = TRUE) {
+  out <- lapply(
+    covariates,
     function(x) x[['specs']][[name]]
   )
   names(out) <- names(covariates)
+
+  if (simplify && all(lengths(out) == 1)) {
+    return(unlist(out))
+  }
 
   out
 }
