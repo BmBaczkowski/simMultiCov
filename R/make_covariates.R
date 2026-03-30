@@ -159,8 +159,9 @@ print.covariates <- function(x, ...) {
   cov_names <- x$names
   cov_types <- x$types
 
+  cli::cli_ul()
   for (i in seq_along(cov_names)) {
-    cli::cli_text("• {.strong {cov_names[[i]]}}: {cov_types[[i]]}")
+    cli::cli_li("\u2022 {.strong {cov_names[[i]]}}: {cov_types[[i]]}")
   }
 
   # Correlations
@@ -176,8 +177,9 @@ print.covariates <- function(x, ...) {
 }
 
 #' @export
-summary.covariates <- function(x, ...) {
-
+summary.covariates <- function(object, ...) {
+  x <- object
+  
   cli::cli_h1(paste0("<", class(x), ">"))
   cli::cli_text("{.emph Full specification}")
 

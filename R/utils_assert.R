@@ -295,7 +295,7 @@
 .assert_correlations <- function(correlations, covariates) {
   .assert_class_list(
     correlations,
-    class = "correlation",
+    class_name = "correlation",
     min_len = 0L
   )
 
