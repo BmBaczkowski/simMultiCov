@@ -10,7 +10,7 @@ test_that("make_ordinal creates valid object with default parameters", {
   expect_equal(result$type, "ordinal")
   expect_equal(
     result$specs$probs, 
-    setNames(
+    stats::setNames(
       as.list(p),
       LETTERS[1:length(p)]
     )
@@ -33,7 +33,7 @@ test_that("make_ordinal creates object with custom labels", {
   expect_equal(result$type, "ordinal")
   expect_equal(
     result$specs$probs, 
-    setNames(
+    stats::setNames(
       as.list(p),
       LETTERS[1:length(p)]
     )

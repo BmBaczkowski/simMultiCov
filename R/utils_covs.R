@@ -44,7 +44,7 @@
       thr_names, 
       function(x) {
         p <- unlist(specs$probs[[x]])
-        thr <- qnorm(cumsum(p)[-length(p)])
+        thr <- stats::qnorm(cumsum(p)[-length(p)])
         attributes(thr) <- list(
           labels = names(specs$probs[[x]])
         )

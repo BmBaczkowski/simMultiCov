@@ -71,7 +71,7 @@ make_binary <- function(
     mean = 0,
     total_var = 1,
     icc = icc,
-    probs = setNames(
+    probs = stats::setNames(
       as.list(probs),
       labels
     )

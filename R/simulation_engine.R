@@ -48,8 +48,8 @@
   cluster_id <- rep.int(seq_len(n_clusters), cluster_sizes)
 
   # Standard normal draws for between- and within-cluster components
-  z_between <- matrix(rnorm(n_clusters * n_vars), nrow = n_vars, ncol = n_clusters)
-  z_within  <- matrix(rnorm(n_obs * n_vars), nrow = n_vars, ncol = n_obs)
+  z_between <- matrix(stats::rnorm(n_clusters * n_vars), nrow = n_vars, ncol = n_clusters)
+  z_within  <- matrix(stats::rnorm(n_obs * n_vars), nrow = n_vars, ncol = n_obs)
   
   # Construct cluster-level effects and expand to observations
   X <- sd_mat_between %*% chol_R_between %*% z_between 
