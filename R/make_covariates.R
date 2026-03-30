@@ -161,7 +161,7 @@ print.covariates <- function(x, ...) {
 
   cli::cli_ul()
   for (i in seq_along(cov_names)) {
-    cli::cli_li("\u2022 {.strong {cov_names[[i]]}}: {cov_types[[i]]}")
+    cli::cli_li("{.strong {cov_names[[i]]}}: {cov_types[[i]]}")
   }
 
   # Correlations
