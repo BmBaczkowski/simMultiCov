@@ -5,7 +5,7 @@ make_ordinal <- function(
   labels = NULL
 ) {
 
-  context <- "make_oridinal()"
+  context <- "make_ordinal()"
 
   .assert_covariate_name(name, context)
   .assert_covariate_probs(probs, context)

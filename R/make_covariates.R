@@ -14,10 +14,10 @@ make_covariates <- function(
   correlations <- .assert_correlations(correlations, covariates)
 
   # Build output components
-  R_w <- .build_R_mat(correlations, covariates, "within")
-  R_b <- .build_R_mat(correlations, covariates, "between")
-  D_w <- .build_D_mat(covariates, "within")
-  D_b <- .build_D_mat(covariates, "between")
+  R_w <- .build_correlation_matrix(correlations, covariates, "within")
+  R_b <- .build_correlation_matrix(correlations, covariates, "between")
+  D_w <- .build_sd_matrix(covariates, "within")
+  D_b <- .build_sd_matrix(covariates, "between")
 
   # Compute variance-covariance matrix
   Sigma_w <- D_w %*% R_w %*% D_w

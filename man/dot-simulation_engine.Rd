@@ -4,7 +4,15 @@
 \alias{.simulation_engine}
 \title{Internal engine for clustered variables simulation}
 \usage{
-.simulation_engine(cluster_sizes, mean_vec, D_w, D_b, L_w, L_b, seed = NULL)
+.simulation_engine(
+  cluster_sizes,
+  mean_vec,
+  sd_mat_within,
+  sd_mat_between,
+  chol_R_within,
+  chol_R_between,
+  seed = NULL
+)
 }
 \description{
 Internal engine for clustered variables simulation

@@ -1,4 +1,4 @@
-.assert_R_mat <- function(
+.assert_correlation_matrix <- function(
   R,
   name = deparse(substitute(R)),
   tol = 1e-8,
@@ -68,7 +68,7 @@
   R
 }
 
-.build_R_mat <- function(correlations, covariates, context) {
+.build_correlation_matrix <- function(correlations, covariates, context) {
   if (context == "within") {
     rho_type <- "corr_within"
     msg <- "Within-correlation matrix"
@@ -94,13 +94,13 @@
   R[idx12] <- rho
   R[idx21] <- rho
 
-  R <- .assert_R_mat(R, msg)
+  R <- .assert_correlation_matrix(R, msg)
 
   R
 }
 
-.build_D_mat <- function(covariates, type) {
-  covs_names <- names(covariates)
+.build_sd_matrix <- function(covariates, type) {
+  cov_names <- names(covariates)
   var_total <- .get_covariate_specs(covariates, "total_var")
   icc <- .get_covariate_specs(covariates, "icc")
 
@@ -113,7 +113,7 @@
   
   D <- diag(length(var))
   diag(D) <- sqrt(var)
-  dimnames(D) <- list(covs_names, covs_names)
+  dimnames(D) <- list(cov_names, cov_names)
 
   D
 }
@@ -122,7 +122,7 @@
 # Environment for persistent cache
 .cholesky_cache <- new.env(parent = emptyenv())
 
-.get_Cholesky_mat <- function(R) {
+.get_cholesky_factor <- function(R) {
   cache_key <- digest::digest(R)
   
   if (exists(cache_key, envir = .cholesky_cache)) {

@@ -11,7 +11,7 @@ simulate.default <- function(x, ...) {
 #' @export
 #' @method simulate covariates
 simulate.covariates <- function(
-  x,
+  covs,
   n_clusters,
   cluster_size,
   cluster_name = "cluster",
@@ -62,29 +62,29 @@ simulate.covariates <- function(
   )
 
   # Obtain and cache Cholesky
-  L_w <- .get_Cholesky_mat(x$R_w)  
-  L_b <- .get_Cholesky_mat(x$R_b) 
+  chol_within <- .get_cholesky_factor(covs$R_w)  
+  chol_between <- .get_cholesky_factor(covs$R_b) 
 
   # Single dataset case
   if (n_datasets == 1L) {
     df <- .simulation_engine(
       cluster_sizes = cluster_size,
-      mean_vec = x$mean,
-      D_w = x$D_w,
-      D_b = x$D_b,
-      L_w = L_w,
-      L_b = L_b,
+      mean_vec = covs$mean,
+      sd_mat_within = covs$D_w,
+      sd_mat_between = covs$D_b,
+      chol_R_within = chol_within,
+      chol_R_between = chol_between,
       seed = seed
     )
     colnames(df)[colnames(df) == "cluster"] <- cluster_name
-    df <- .apply_conversions(df, x$.thresholds)
+    df <- .apply_conversions(df, covs$.thresholds)
     df <- structure(
       df,
       class = c("simulation", class(df)),
       DGP = list(
-        mu = x$mean, 
-        Sigma_w = x$Sigma_w,
-        Sigma_b = x$Sigma_b
+        mu = covs$mean, 
+        Sigma_w = covs$Sigma_w,
+        Sigma_b = covs$Sigma_b
       )
     )
     return(df)
@@ -99,22 +99,22 @@ simulate.covariates <- function(
     
     df <- .simulation_engine(
       cluster_sizes = cluster_size,
-      mean_vec = x$mean,
-      D_w = x$D_w,
-      D_b = x$D_b,
-      L_w = L_w,
-      L_b = L_b,
+      mean_vec = covs$mean,
+      sd_mat_within = covs$D_w,
+      sd_mat_between = covs$D_b,
+      chol_R_within = chol_within,
+      chol_R_between = chol_between,
       seed = current_seed
     )
     colnames(df)[colnames(df) == "cluster"] <- cluster_name
-    df <- .apply_conversions(df, x$.thresholds)
+    df <- .apply_conversions(df, covs$.thresholds)
     df <- structure(
       df,
       class = c("simulation", class(df)),
       DGP = list(
-        mu = x$mean, 
-        Sigma_w = x$Sigma_w,
-        Sigma_b = x$Sigma_b
+        mu = covs$mean, 
+        Sigma_w = covs$Sigma_w,
+        Sigma_b = covs$Sigma_b
       )
     )    
     datasets[[i]] <- df

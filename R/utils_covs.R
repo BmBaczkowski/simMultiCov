@@ -44,9 +44,9 @@
     function(col, thr) {
       labs <- attr(thr, "labels")
       if (length(thr) > 1) {
-        .to_categorical(df[[col]], cuts = thr, labels = labs)
+        .convert_to_factor(df[[col]], cuts = thr, labels = labs)
       } else {
-        .to_categorical(df[[col]], threshold = thr, labels = labs)
+        .convert_to_factor(df[[col]], threshold = thr, labels = labs)
       }
     }, 
     thr_names, 
@@ -56,7 +56,7 @@
   df
 }
 
-.to_categorical <- function(x, threshold = NULL, cuts = NULL, labels) {
+.convert_to_factor <- function(x, threshold = NULL, cuts = NULL, labels) {
   if (!is.null(threshold)) {
     # Binary case
     x <- as.integer(x <= threshold[1])
