@@ -31,8 +31,8 @@ jobs:
       - name: Install dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          use-public-rspm: true
           extra-packages: rcmdcheck
+          pak-version: stable
 
       - name: Run R CMD check
         uses: r-lib/actions/check-r-package@v2
