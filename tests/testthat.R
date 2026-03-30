@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(multisim)
+library(simMultiCov)
 
-test_check("multisim")
+test_check("simMultiCov")
