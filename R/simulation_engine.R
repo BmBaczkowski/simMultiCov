@@ -1,5 +1,32 @@
 #' Internal engine for clustered variables simulation
-
+#'
+#' @description
+#' Simulates clustered data with specified within-cluster and between-cluster
+#' covariance structures using a Cholesky decomposition approach.
+#'
+#' @param cluster_sizes Integer vector specifying the number of observations
+#'   in each cluster.
+#' @param mean_vec Numeric vector of variable means.
+#' @param sd_mat_within Diagonal matrix of within-cluster standard deviations.
+#' @param sd_mat_between Diagonal matrix of between-cluster standard deviations.
+#' @param chol_R_within Cholesky factor of the within-cluster correlation matrix.
+#' @param chol_R_between Cholesky factor of the between-cluster correlation matrix.
+#' @param seed Optional integer seed for reproducibility.
+#'
+#' @return A data.frame with columns:
+#'   \item{cluster}{Cluster identifier}
+#'   \item{X1, X2, ...}{Simulated variables}
+#'
+#' @details
+#' This function implements a two-level simulation model:
+#' \enumerate{
+#'   \item Generate cluster-level effects using between-cluster covariance
+#'   \item Generate observation-level effects using within-cluster covariance
+#'   \item Combine and shift by variable means
+#' }
+#'
+#' @keywords internal
+#' @noRd
 .simulation_engine <- function(
   cluster_sizes,
   mean_vec,
