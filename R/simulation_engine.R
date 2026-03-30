@@ -25,7 +25,6 @@
 #'   \item Combine and shift by variable means
 #' }
 #'
-#' @keywords internal
 #' @noRd
 .simulation_engine <- function(
   cluster_sizes,

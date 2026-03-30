@@ -1,3 +1,23 @@
+#' Validate Correlation Matrix
+#'
+#' Checks that a matrix is symmetric and positive semi-definite. Optionally
+#' fixes non-positive semi-definite matrices by computing the nearest
+#' positive-definite matrix.
+#'
+#' @param R Numeric matrix. The correlation matrix to validate.
+#' @param name Character string. Name of the matrix for error messages
+#'   (default: deparsed expression of \code{R}).
+#' @param tol Numeric. Tolerance for symmetry and eigenvalue checks
+#'   (default: 1e-8).
+#' @param fix_non_psd Logical. If \code{TRUE}, replaces non-positive
+#'   semi-definite matrices with the nearest positive-definite matrix
+#'   (default: \code{TRUE}).
+#' @param check_singularity Logical. If \code{TRUE}, warns if the matrix
+#'   is singular or nearly singular (default: \code{FALSE}).
+#'
+#' @return The validated correlation matrix.
+#'
+#' @keywords internal
 .assert_correlation_matrix <- function(
   R,
   name = deparse(substitute(R)),
@@ -68,6 +88,21 @@
   R
 }
 
+#' Build Correlation Matrix
+#'
+#' Constructs a correlation matrix from a list of correlation specifications
+#' and covariate objects.
+#'
+#' @param correlations List. A list of correlation specification objects, or
+#'   \code{NULL}.
+#' @param covariates List. A list of covariate objects.
+#' @param context Character string. Either "within" or "between", specifying
+#'   which correlation type to use.
+#'
+#' @return A symmetric correlation matrix with covariate names as dimension
+#'   names.
+#'
+#' @keywords internal
 .build_correlation_matrix <- function(correlations, covariates, context) {
   if (context == "within") {
     rho_type <- "corr_within"
@@ -99,6 +134,19 @@
   R
 }
 
+#' Build Standard Deviation Matrix
+#'
+#' Constructs a diagonal matrix of standard deviations from covariate
+#' specifications, using either within-cluster or between-cluster variance.
+#'
+#' @param covariates List. A list of covariate objects.
+#' @param type Character string. Either "within" or "between", specifying
+#'   which variance component to use.
+#'
+#' @return A diagonal matrix of standard deviations with covariate names
+#'   as dimension names.
+#'
+#' @keywords internal
 .build_sd_matrix <- function(covariates, type) {
   cov_names <- names(covariates)
   var_total <- .get_covariate_specs(covariates, "total_var")
@@ -122,6 +170,17 @@
 # Environment for persistent cache
 .cholesky_cache <- new.env(parent = emptyenv())
 
+#' Get Cholesky Factor
+#'
+#' Computes and caches the lower triangular Cholesky factor of a correlation
+#' matrix. Uses a digest-based cache to avoid redundant computations.
+#'
+#' @param R Numeric matrix. A symmetric positive-definite correlation matrix.
+#'
+#' @return The lower triangular Cholesky factor \code{L} such that
+#'   \code{L \%*\% t(L) = R}.
+#'
+#' @keywords internal
 .get_cholesky_factor <- function(R) {
   cache_key <- digest::digest(R)
   

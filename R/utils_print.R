@@ -1,7 +1,9 @@
+#' @noRd
 .is_whole_number <- function(x) {
   is.numeric(x) && all(x %% 1 == 0)
 }
 
+#' @noRd
 .print_field <- function(name, value) {
   if (is.numeric(value)) {
     if (.is_whole_number(value)) {

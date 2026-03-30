@@ -15,7 +15,6 @@
 #' @return An object of class \code{c("covariate", "covariate_<type>")}
 #'   containing the covariate specification.
 #'
-#' @keywords internal
 #' @noRd
 .make_new_covariate <- function(name, type, ...) {
 

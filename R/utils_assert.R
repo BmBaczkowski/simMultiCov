@@ -1,3 +1,14 @@
+#' Validate Covariate Name
+#'
+#' Checks that a covariate name is a single non-empty character string
+#' without spaces.
+#'
+#' @param name Character string. The covariate name to validate.
+#' @param context Character string. Context for error messages (e.g., function name).
+#'
+#' @return Invisible \code{TRUE} if validation passes; throws an error otherwise.
+#'
+#' @noRd
 .assert_covariate_name <- function(name, context) {
 
   checkmate::assert_character(
@@ -16,6 +27,17 @@
 
 }
 
+#' Validate Covariate Mean
+#'
+#' Checks that a covariate mean is a single finite numeric value with no
+#' missing values.
+#'
+#' @param mean Numeric. The mean value to validate.
+#' @param context Character string. Context for error messages (e.g., function name).
+#'
+#' @return Invisible \code{TRUE} if validation passes; throws an error otherwise.
+#'
+#' @noRd
 .assert_covariate_mean <- function(mean, context) {
 
   checkmate::assert_numeric(
@@ -27,6 +49,17 @@
 
 }
 
+#' Validate Covariate Total Variance
+#'
+#' Checks that a covariate total variance is a single finite positive numeric
+#' value with no missing values.
+#'
+#' @param total_var Numeric. The total variance value to validate.
+#' @param context Character string. Context for error messages (e.g., function name).
+#'
+#' @return Invisible \code{TRUE} if validation passes; throws an error otherwise.
+#'
+#' @noRd
 .assert_covariate_total_var <- function(total_var, context) {
 
   checkmate::assert_numeric(
@@ -40,6 +73,17 @@
 
 }
 
+#' Validate Covariate ICC
+#'
+#' Checks that a covariate intraclass correlation coefficient (ICC) is a
+#' single finite numeric value between 0 and 1 with no missing values.
+#'
+#' @param icc Numeric. The ICC value to validate.
+#' @param context Character string. Context for error messages (e.g., function name).
+#'
+#' @return Invisible \code{TRUE} if validation passes; throws an error otherwise.
+#'
+#' @noRd
 .assert_covariate_icc <- function(icc, context) {
 
   checkmate::assert_numeric(
@@ -54,6 +98,17 @@
 
 }
 
+#' Validate Covariate Probabilities
+#'
+#' Checks that covariate probabilities are valid numeric values between 0 and 1
+#' that sum to 1. For binary covariates, ensures the probability is a scalar.
+#'
+#' @param probs Numeric vector. The probability values to validate.
+#' @param context Character string. Context for error messages (e.g., function name).
+#'
+#' @return Invisible \code{TRUE} if validation passes; throws an error otherwise.
+#'
+#' @noRd
 .assert_covariate_probs <- function(probs, context) {
 
  checkmate::assert_numeric(
@@ -85,6 +140,18 @@
 
 }
 
+#' Validate Covariate Labels
+#'
+#' Checks that covariate labels are valid character strings matching the
+#' length of the probability vector.
+#'
+#' @param labels Character vector. The labels to validate.
+#' @param probs Numeric vector. The probability vector used to check label length.
+#' @param context Character string. Context for error messages (e.g., function name).
+#'
+#' @return Invisible \code{TRUE} if validation passes; throws an error otherwise.
+#'
+#' @noRd
 .assert_covariate_labels <- function(labels, probs, context) {
 
   checkmate::assert_character(
@@ -98,6 +165,18 @@
 
 }
 
+#' Validate List of Objects with Specific Class
+#'
+#' Checks that all elements in a list inherit from a specified class and
+#' that the list meets minimum length requirements.
+#'
+#' @param x List. The list to validate.
+#' @param class_name Character string. The class name that all elements must inherit from.
+#' @param min_len Integer. Minimum length of the list (default: 1).
+#'
+#' @return Invisible \code{TRUE} if validation passes; throws an error otherwise.
+#'
+#' @noRd
 .assert_class_list <- function(x, class_name, min_len = 1L) {
   var_name <- deparse(substitute(x))
 
@@ -127,6 +206,18 @@
   invisible(TRUE)
 }
 
+#' Assert Unique Names
+#'
+#' Checks that a character vector contains no duplicate values.
+#'
+#' @param x Character vector. The vector to check for duplicates.
+#' @param err_msg Character string. Error message template with \code{\%s} placeholder
+#'   for duplicate names.
+#' @param sep Character string. Separator for displaying duplicate names (default: ", ").
+#'
+#' @return Invisible \code{TRUE} if validation passes; throws an error otherwise.
+#'
+#' @noRd
 .assert_unique_names <- function(x, err_msg, sep = ", ") {
   if (anyDuplicated(x)) {
     dup <- unique(x[duplicated(x)])
@@ -139,6 +230,17 @@
   invisible(TRUE)
 }
 
+#' Validate Covariates List
+#'
+#' Validates a list of covariate objects, ensuring all elements are of class
+#' \code{"covariate"} and have unique names. Adds names and types as attributes
+#' to the returned list.
+#'
+#' @param covariates List. A list of covariate objects to validate.
+#'
+#' @return The validated covariates list with \code{names} and \code{types} attributes.
+#'
+#' @noRd
 .assert_covariates <- function(covariates) {
   .assert_class_list(
     covariates,
@@ -161,6 +263,16 @@
   covariates
 }
 
+#' Extract Correlation Keys
+#'
+#' Creates unique keys for correlation pairs by sorting variable names and
+#' concatenating them with \code{"||"}.
+#'
+#' @param correlations List. A list of correlation specification objects.
+#'
+#' @return Character vector of unique correlation keys.
+#'
+#' @noRd
 .extract_corr_keys <- function(correlations) {
   vapply(
     correlations,
@@ -169,6 +281,17 @@
   )
 }
 
+#' Validate Correlations
+#'
+#' Validates a list of correlation specification objects, ensuring they are
+#' unique and reference valid covariate names.
+#'
+#' @param correlations List. A list of correlation specification objects to validate.
+#' @param covariates List. A list of covariate objects to check against.
+#'
+#' @return The validated correlations list.
+#'
+#' @noRd
 .assert_correlations <- function(correlations, covariates) {
   .assert_class_list(
     correlations,
