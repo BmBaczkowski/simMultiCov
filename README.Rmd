@@ -252,7 +252,6 @@ The package provides the following main functions:
 
 - **Documentation**: Run `?function_name` for detailed help on any function
 - **Issues**: Report bugs or request features on [GitHub Issues](https://github.com/BmBaczkowski/simMultiCov/issues)
-- **Questions**: Ask questions on [GitHub Discussions](https://github.com/BmBaczkowski/simMultiCov/discussions)
 
 ## Citation
 

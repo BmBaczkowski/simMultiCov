@@ -371,8 +371,6 @@ The package provides the following main functions:
   function
 - **Issues**: Report bugs or request features on [GitHub
   Issues](https://github.com/BmBaczkowski/simMultiCov/issues)
-- **Questions**: Ask questions on [GitHub
-  Discussions](https://github.com/BmBaczkowski/simMultiCov/discussions)
 
 ## Citation
 
